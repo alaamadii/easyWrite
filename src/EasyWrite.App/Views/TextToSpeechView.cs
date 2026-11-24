@@ -2,6 +2,7 @@ using System.Globalization;
 using EasyWrite.App.Controls;
 using EasyWrite.App.Presentation;
 using EasyWrite.App.Theme;
+using EasyWrite.Core.Models;
 
 namespace EasyWrite.App.Views;
 
@@ -34,10 +35,7 @@ internal sealed class TextToSpeechView : UserControl
         _textEditor.TextChanged += HandleTextChanged;
 
         _characterCountLabel = CreateMetadataLabel("0 characters");
-        _voiceComboBox = CreateUnavailableComboBox(
-            "Available when speech playback is connected",
-            "Installed voice selection",
-            1);
+        _voiceComboBox = CreateVoiceComboBox();
 
         _rateValueLabel = CreateValueLabel("0");
         _rateTrackBar = CreateTrackBar(-10, 10, 0, 2, "Speech rate");
@@ -52,13 +50,16 @@ internal sealed class TextToSpeechView : UserControl
 
         _speakButton = EasyWriteTheme.CreatePrimaryButton("&Speak", 4);
         _speakButton.AccessibleName = "Speak entered text";
-        _speakButton.AccessibleDescription = "Unavailable until text-to-speech is connected in Phase 02.";
+        _speakButton.AccessibleDescription = "Speak the entered text using the selected Windows voice.";
+        _speakButton.Click += (_, _) => SpeakRequested?.Invoke(this, EventArgs.Empty);
 
         _pauseResumeButton = EasyWriteTheme.CreateSecondaryButton("&Pause", 5);
         _pauseResumeButton.AccessibleName = "Pause or resume speech";
+        _pauseResumeButton.Click += (_, _) => PauseResumeRequested?.Invoke(this, EventArgs.Empty);
 
         _stopButton = EasyWriteTheme.CreateDangerButton("S&top", 6);
         _stopButton.AccessibleName = "Stop speech";
+        _stopButton.Click += (_, _) => StopRequested?.Invoke(this, EventArgs.Empty);
 
         _clearButton = EasyWriteTheme.CreateSecondaryButton("&Clear text", 7);
         _clearButton.AccessibleName = "Clear text editor";
@@ -71,17 +72,60 @@ internal sealed class TextToSpeechView : UserControl
             Font = EasyWriteTheme.BodyFont(9F),
             ForeColor = EasyWriteTheme.TextSecondary,
             Margin = new Padding(0, 6, 0, 0),
-            Text = "Speech playback will be connected in Phase 02. You can prepare text and settings now.",
+            Text = "Loading installed Windows voices...",
             TextAlign = ContentAlignment.MiddleLeft
         };
-
         Controls.Add(CreateCard());
         UpdateTextMetadata();
     }
 
     public event EventHandler? ContentAvailabilityChanged;
 
+    public event EventHandler? SpeakRequested;
+
+    public event EventHandler? PauseResumeRequested;
+
+    public event EventHandler? StopRequested;
+
     public bool HasText => !string.IsNullOrWhiteSpace(_textEditor.Text);
+
+    public string EnteredText => _textEditor.Text;
+
+    public string? SelectedVoiceName =>
+        (_voiceComboBox.SelectedItem as VoiceListItem)?.Voice.Name;
+
+    public int Rate => _rateTrackBar.Value;
+
+    public int Volume => _volumeTrackBar.Value;
+
+    public void SetVoices(IReadOnlyList<SpeechVoice> voices)
+    {
+        ArgumentNullException.ThrowIfNull(voices);
+
+        _voiceComboBox.BeginUpdate();
+        try
+        {
+            _voiceComboBox.Items.Clear();
+            foreach (var voice in voices.Where(voice => voice.IsEnabled))
+            {
+                _voiceComboBox.Items.Add(new VoiceListItem(voice));
+            }
+
+            _voiceComboBox.SelectedIndex = _voiceComboBox.Items.Count > 0 ? 0 : -1;
+        }
+        finally
+        {
+            _voiceComboBox.EndUpdate();
+        }
+    }
+
+    public void ShowCapabilityMessage(string message, bool isError = false)
+    {
+        _capabilityMessageLabel.ForeColor = isError
+            ? EasyWriteTheme.Danger
+            : EasyWriteTheme.TextSecondary;
+        _capabilityMessageLabel.Text = message;
+    }
 
     public void ApplyState(SpeechControlState state)
     {
@@ -249,21 +293,17 @@ internal sealed class TextToSpeechView : UserControl
         return label;
     }
 
-    private static ComboBox CreateUnavailableComboBox(
-        string message,
-        string accessibleName,
-        int tabIndex) => new()
-        {
-            AccessibleDescription = "This capability is not connected in the current phase.",
-            AccessibleName = accessibleName,
-            Dock = DockStyle.Fill,
-            DropDownStyle = ComboBoxStyle.DropDown,
-            Font = EasyWriteTheme.BodyFont(),
-            IntegralHeight = false,
-            Margin = new Padding(0, 4, 0, 0),
-            TabIndex = tabIndex,
-            Text = message
-        };
+    private static ComboBox CreateVoiceComboBox() => new()
+    {
+        AccessibleDescription = "Choose an enabled speech voice installed in Windows.",
+        AccessibleName = "Installed voice selection",
+        Dock = DockStyle.Fill,
+        DropDownStyle = ComboBoxStyle.DropDownList,
+        Font = EasyWriteTheme.BodyFont(),
+        IntegralHeight = false,
+        Margin = new Padding(0, 4, 0, 0),
+        TabIndex = 1
+    };
 
     private static TrackBar CreateTrackBar(
         int minimum,
@@ -350,5 +390,10 @@ internal sealed class TextToSpeechView : UserControl
     {
         _textEditor.Clear();
         _textEditor.Focus();
+    }
+
+    private sealed record VoiceListItem(SpeechVoice Voice)
+    {
+        public override string ToString() => $"{Voice.Name} ({Voice.Culture})";
     }
 }
