@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <RootNamespace>EasyWrite.App</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../EasyWrite.Core/EasyWrite.Core.csproj" />
+    <ProjectReference Include="../EasyWrite.Infrastructure/EasyWrite.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
