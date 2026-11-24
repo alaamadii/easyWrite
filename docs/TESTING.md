@@ -33,6 +33,12 @@ The Phase 01 suite adds deterministic presentation-state coverage for every
 operation prevention, playback control labels, transcript actions, and accessible
 status text.
 
+The Phase 02 suite adds an Infrastructure test project with a fake synthesizer
+adapter. It verifies enabled voice filtering/mapping, empty discovery, validation,
+settings forwarding, state sequences, re-entry, cancellation, synthesizer errors,
+invalid voices, late callbacks, event unsubscription, disposal, and post-dispose
+commands without requiring a real speaker or installed voice.
+
 ## Core test catalog
 
 | Area | Required cases |
@@ -126,6 +132,47 @@ Manual / UI Automation results:
   125% and changing the user's display configuration was out of scope.
 - Full keyboard-only traversal/access-key audit: not run; scheduled before Phase 01
   is considered fully verified.
+
+## Phase 02 text-to-speech evidence — 2026-11-24
+
+Environment: Windows 11, .NET SDK 10.0.402, branch `feat/text-to-speech`.
+The real Windows service was used only for voice discovery and startup. No audible
+result is claimed because the assistant cannot hear the development machine.
+
+Automated results:
+
+- Restore after adding the test project: passed; lock file generated.
+- Release build: passed with 0 warnings and 0 errors.
+- Tests: 37 passed (7 Core, 13 App presentation, 17 Infrastructure).
+- Deterministic cases include Speak/Pause/Resume/Stop, cancellation, failure,
+  re-entry, late callbacks, settings forwarding, and deterministic disposal.
+
+Real Windows smoke results:
+
+- Enabled voice discovery: passed; count 3.
+- `Microsoft Zira Desktop` — English (United States).
+- `Microsoft Tolga` — Turkish (Turkey).
+- `Microsoft Naayf` — Arabic (Saudi Arabia).
+- Release executable startup: passed; the process remained healthy for the
+  three-second startup observation.
+- Normal interactive form close: not run. The hidden startup probe had no main
+  window handle and was force-cleaned; a follow-up check found no remaining
+  `EasyWrite.App` process.
+
+Audible/manual matrix:
+
+- Short sentence and multi-sentence playback: not run — no human listener.
+- Pause and Resume audible continuity: not run — no human listener.
+- Stop before completion and repeated Speak/Stop: not run — no human listener.
+- Voice selection with multiple voices: discovery passed; audible distinction not run.
+- Rate -10, 0, and 10: forwarding is automated; audible effect not run.
+- Low volume and volume 100: forwarding is automated; audibility not run.
+- Repeated Speak while active: automated rejection passed; interactive check not run.
+- Clear after playback: Phase 01 clear behavior passed; after-audio path not run.
+- Close while Speaking or Paused: not run — would require starting real audio.
+- No-voice/no-output behavior: deterministic failure paths passed; destructive
+  machine reconfiguration was not attempted.
+- UI responsiveness during audio: not run — real audio was not started.
 
 ## Evidence record template
 

@@ -49,15 +49,20 @@ pass are available; see `TESTING.md` for the recorded scope.
 
 ## Phase 02 — Text to Speech
 
-- [ ] Implement `TextToSpeechService` over `SpeechSynthesizer`.
-- [ ] Enumerate enabled installed voices and choose a safe default.
-- [ ] Apply validated voice, rate, and volume without freezing the UI.
-- [ ] Implement Speak, Pause, Resume, Stop, completion, and cancellation.
-- [ ] Publish consistent state changes and protect against re-entry.
-- [ ] Handle blank text, missing voices, invalid voice, and audio output failures.
-- [ ] Dispose the synthesizer and detach events on shutdown.
-- [ ] Add automated adapter/state tests using seams where possible.
+- [x] Implement `TextToSpeechService` over `SpeechSynthesizer`.
+- [x] Enumerate enabled installed voices and choose a safe default.
+- [x] Apply validated voice, rate, and volume without freezing the UI.
+- [x] Implement Speak, Pause, Resume, Stop, completion, and cancellation.
+- [x] Publish consistent state changes and protect against re-entry.
+- [x] Handle blank text, missing voices, invalid voice, and audio output failures.
+- [x] Dispose the synthesizer and detach events on shutdown.
+- [x] Add automated adapter/state tests using seams where possible.
 - [ ] Manually verify audible output and repeated playback on actual hardware.
+
+Implementation and deterministic lifecycle coverage are complete on 2026-11-24.
+Real Windows discovery found three enabled voices. Audible playback, pause/resume,
+rate/volume perception, repeated cycles, and close-during-playback remain open
+because no human listener validated the machine's audio output.
 
 ## Phase 03 — Speech to Text
 
