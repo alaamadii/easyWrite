@@ -5,6 +5,7 @@
     <Project Path="src/EasyWrite.Infrastructure/EasyWrite.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/EasyWrite.App.Tests/EasyWrite.App.Tests.csproj" />
     <Project Path="tests/EasyWrite.Core.Tests/EasyWrite.Core.Tests.csproj" />
   </Folder>
 </Solution>
