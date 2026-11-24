@@ -64,9 +64,12 @@ Forbidden dependencies:
 | `SpeechSettings` | Voice/rate/volume value and validation | Nothing disposable |
 | `SpeechResult` | Recognized text, timestamp, confidence | Nothing disposable |
 | `SpeechOperationState` | Shared vocabulary for visible state | Nothing disposable |
+| `SpeechControlStateMapper` | Derive enabled actions, labels, and accessible status from one state/capability context | Nothing disposable |
 
-The `TextToSpeechView` and `SpeechToTextView` are planned components; they are not
-part of the initialization implementation.
+`TextToSpeechView`, `SpeechToTextView`, `OperationStatusControl`, and the centralized
+state mapper are implemented in Phase 01. Production composition deliberately
+passes unavailable speech capabilities until the concrete Phase 02 and Phase 03
+adapters exist; disabled controls and inline guidance report that boundary honestly.
 
 ## Runtime composition
 

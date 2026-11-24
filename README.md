@@ -4,9 +4,11 @@ EasyWrite is a Windows desktop application that converts written text into spoke
 audio and microphone speech into written text. It is Project 04 for the YMH219
 Object-Oriented Programming course.
 
-> **Current status:** project foundation only. The solution structure, contracts,
-> tests, CI, and planning documents are present; speech and final UI features have
-> not yet been implemented. See [Project Plan](docs/PROJECT_PLAN.md).
+> **Current status:** Phase 01 interface complete. EasyWrite now has its responsive
+> two-tab speech workspace, accessible status presentation, input controls, and a
+> tested centralized UI-state mapper. Real speech playback, microphone recognition,
+> and TXT export are intentionally not connected yet. See
+> [Project Plan](docs/PROJECT_PLAN.md).
 
 ## Course information
 
@@ -73,6 +75,7 @@ src/
   EasyWrite.Core/            Models, events, and service abstractions
   EasyWrite.Infrastructure/  Windows speech and file integrations
 tests/
+  EasyWrite.App.Tests/       Deterministic presentation-state tests
   EasyWrite.Core.Tests/      Fast unit tests
 docs/                        Product and engineering documentation
 .github/                     CI and pull-request guidance
@@ -100,8 +103,9 @@ dotnet build EasyWrite.slnx --configuration Release --no-restore
 dotnet run --project src/EasyWrite.App/EasyWrite.App.csproj
 ```
 
-The current application opens a foundation placeholder. The complete interface is
-scheduled for Phase 1.
+The application opens the completed Phase 01 interface. Operation buttons remain
+disabled with honest inline guidance until the matching speech service is added in
+Phases 02–04.
 
 ## Test
 
@@ -114,10 +118,10 @@ they are tracked separately in [Testing](docs/TESTING.md).
 
 ## Planned features
 
-- [ ] Complete two-tab Windows Forms interface
+- [x] Complete two-tab Windows Forms interface
 - [ ] Local text-to-speech with speak, pause/resume, and stop
 - [ ] Microphone speech-to-text with explicit start and stop
-- [ ] Clear actions and visible operation status
+- [x] Clear actions and visible operation status
 - [ ] Voice, rate, and volume controls
 - [ ] Timestamped recognition results
 - [ ] TXT export
@@ -131,7 +135,8 @@ they are tracked separately in [Testing](docs/TESTING.md).
 - `System.Speech` is a compatibility-focused Windows library and is not a cloud AI
   transcription service.
 - Automated CI can validate code but cannot prove microphone or speaker behavior.
-- No screenshots are included yet because the final interface has not been built.
+- Final submission screenshots are not included yet because the speech workflows
+  are not complete. Phase 01 UI evidence must not be presented as final behavior.
 
 ## Documentation
 

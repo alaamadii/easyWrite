@@ -28,6 +28,11 @@ The initialization test suite covers the `SpeechSettings` supported ranges. Test
 for state coordination, adapters, errors, transcript formatting, and export are
 added with the feature that introduces each behavior.
 
+The Phase 01 suite adds deterministic presentation-state coverage for every
+`SpeechOperationState`, unavailable and available capability contexts, conflicting
+operation prevention, playback control labels, transcript actions, and accessible
+status text.
+
 ## Core test catalog
 
 | Area | Required cases |
@@ -88,6 +93,39 @@ GitHub Actions uses a Windows runner because the projects target
 `net10.0-windows`. It restores, verifies formatting, builds Release with warnings as
 errors, and runs tests. Hardware-dependent tests must not be labeled as ordinary CI
 tests or made flaky through assumptions about hosted-runner audio devices.
+
+## Phase 01 interface evidence — 2026-11-24
+
+Environment: Windows 11, .NET SDK 10.0.402, branch `feat/speech-ui`, 125% DPI
+(120 DPI). No microphone, speaker, recognizer, or speech engine operation was
+started during this phase.
+
+Automated results:
+
+- Locked restore: passed.
+- Formatting verification: passed.
+- Release build: passed with 0 warnings and 0 errors.
+- Tests: 20 passed (7 Core and 13 App presentation tests).
+
+Manual / UI Automation results:
+
+- Release executable launched and closed cleanly: passed.
+- Default/enforced minimum layout at 125% DPI: passed for both tabs with no core
+  control clipping.
+- Text and color both communicate the Ready/microphone-off states: passed.
+- Tab selection and visible keyboard focus: passed.
+- Character count changed from 0 to 15 for `Hello EasyWrite`: passed.
+- Rate changed from 0 to 5 and volume from 100 to 95 through keyboard input;
+  visible values updated: passed.
+- Clear Text emptied the editor and preserved a usable UI: passed.
+- Start Listening, Stop Listening, Speak, playback controls, and Export remained
+  disabled while services are unavailable: passed.
+- Real TTS, microphone recognition, and TXT export: not run because those features
+  intentionally belong to Phases 02–04.
+- DPI 100% and 150%: not run because the current Windows session is configured at
+  125% and changing the user's display configuration was out of scope.
+- Full keyboard-only traversal/access-key audit: not run; scheduled before Phase 01
+  is considered fully verified.
 
 ## Evidence record template
 

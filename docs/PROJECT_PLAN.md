@@ -19,7 +19,7 @@ owner approval.
 | 05 | `fix/validation-and-errors` | Reliability, disposal, and deeper tests | Repeated cycles/close/failure cases are stable; validation suite passes |
 | 06 | `docs/final-submission` | Submission evidence and documentation | Authentic screenshots, final README, checklist, clean-clone validation |
 
-## Phase 00 — Initialization (current)
+## Phase 00 — Initialization (complete)
 
 - [x] Confirm .NET 10 and Windows Desktop runtime are installed.
 - [x] Confirm `System.Speech` has a .NET 10-compatible Windows package.
@@ -30,18 +30,22 @@ owner approval.
   decisions.
 - [x] Add repository instructions, ignore rules, PR template, and Windows CI.
 - [x] Restore locked dependencies, verify formatting, build Release, and run tests.
-- [ ] Push baseline `main`, push the feature branch, and open PR 00.
+- [x] Push baseline `main`, push the feature branch, and open PR 00.
 
 ## Phase 01 — Interface
 
-- [ ] Build shared window header, navigation tabs, and persistent status strip.
-- [ ] Build TTS view with editor, count, voice/rate/volume, and action row.
-- [ ] Build STT view with language, microphone state, transcript, and actions.
-- [ ] Add a centralized state-to-controls renderer using placeholder/fake services.
-- [ ] Add input/empty/capability states without claiming real engine operations.
+- [x] Build shared window header, navigation tabs, and persistent status strip.
+- [x] Build TTS view with editor, count, voice/rate/volume, and action row.
+- [x] Build STT view with language, microphone state, transcript, and actions.
+- [x] Add a centralized state-to-controls renderer with deterministic tests.
+- [x] Add input/empty/capability states without claiming real engine operations.
 - [ ] Verify resizing at minimum/default sizes and Windows DPI 100/125/150%.
 - [ ] Verify tab order, access keys, focus, labels, contrast, and no color-only state.
-- [ ] Add view/state tests where practical and record manual UI checks.
+- [x] Add view/state tests where practical and record manual UI checks.
+
+Phase 01 has been visually and interactively checked at 125% DPI. The remaining two
+verification items stay open until 100% and 150% DPI and a complete keyboard-only
+pass are available; see `TESTING.md` for the recorded scope.
 
 ## Phase 02 — Text to Speech
 
