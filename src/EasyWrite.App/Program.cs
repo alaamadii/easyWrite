@@ -1,4 +1,5 @@
 using EasyWrite.Core.Services;
+using EasyWrite.Infrastructure.SpeechToText;
 using EasyWrite.Infrastructure.TextToSpeech;
 
 namespace EasyWrite.App;
@@ -11,21 +12,39 @@ internal static class Program
         ApplicationConfiguration.Initialize();
 
         ITextToSpeechService? textToSpeechService = null;
-        string? initializationError = null;
+        ISpeechToTextService? speechToTextService = null;
+        string? synthesisInitializationError = null;
+        string? recognitionInitializationError = null;
         try
         {
             textToSpeechService = new TextToSpeechService();
         }
         catch (Exception exception)
         {
-            initializationError =
+            synthesisInitializationError =
                 "Windows speech could not be initialized. Check Windows speech settings and restart EasyWrite.";
             System.Diagnostics.Debug.WriteLine(exception);
         }
 
-        using (textToSpeechService)
+        try
         {
-            Application.Run(new MainForm(textToSpeechService, initializationError));
+            speechToTextService = new SpeechToTextService();
+        }
+        catch (Exception exception)
+        {
+            recognitionInitializationError =
+                "Windows speech recognition could not be initialized. Check Windows speech-language settings and restart EasyWrite.";
+            System.Diagnostics.Debug.WriteLine(exception);
+        }
+
+        using (textToSpeechService)
+        using (speechToTextService)
+        {
+            Application.Run(new MainForm(
+                textToSpeechService,
+                speechToTextService,
+                synthesisInitializationError,
+                recognitionInitializationError));
         }
     }
 }

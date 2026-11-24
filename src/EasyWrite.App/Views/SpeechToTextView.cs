@@ -1,6 +1,8 @@
+using System.Globalization;
 using EasyWrite.App.Controls;
 using EasyWrite.App.Presentation;
 using EasyWrite.App.Theme;
+using EasyWrite.Core.Models;
 
 namespace EasyWrite.App.Views;
 
@@ -27,14 +29,13 @@ internal sealed class SpeechToTextView : UserControl
 
         _languageComboBox = new ComboBox
         {
-            AccessibleDescription = "Recognizer discovery will be connected in Phase 03.",
+            AccessibleDescription = "Choose an installed Windows speech-recognition language.",
             AccessibleName = "Recognition language",
             Dock = DockStyle.Fill,
-            DropDownStyle = ComboBoxStyle.DropDown,
+            DropDownStyle = ComboBoxStyle.DropDownList,
             Font = EasyWriteTheme.BodyFont(),
             IntegralHeight = false,
-            TabIndex = 0,
-            Text = "Available when microphone recognition is connected"
+            TabIndex = 0
         };
 
         _microphoneIndicator = new Panel
@@ -61,16 +62,18 @@ internal sealed class SpeechToTextView : UserControl
         _startListeningButton.Width = 168;
         _startListeningButton.AccessibleName = "Start listening";
         _startListeningButton.AccessibleDescription =
-            "Unavailable until microphone recognition is connected in Phase 03.";
+            "Start recognition through the default Windows microphone.";
+        _startListeningButton.Click += (_, _) => StartListeningRequested?.Invoke(this, EventArgs.Empty);
 
         _stopListeningButton = EasyWriteTheme.CreateDangerButton("S&top listening", 2);
         _stopListeningButton.MinimumSize = new Size(168, 40);
         _stopListeningButton.Width = 168;
         _stopListeningButton.AccessibleName = "Stop listening";
+        _stopListeningButton.Click += (_, _) => StopListeningRequested?.Invoke(this, EventArgs.Empty);
 
         _transcriptBox = new RichTextBox
         {
-            AccessibleDescription = "Finalized recognized speech will appear here in Phase 03.",
+            AccessibleDescription = "Finalized recognized speech appears here in received order.",
             AccessibleName = "Recognition transcript",
             BackColor = EasyWriteTheme.SurfaceMuted,
             BorderStyle = BorderStyle.FixedSingle,
@@ -105,7 +108,7 @@ internal sealed class SpeechToTextView : UserControl
             Font = EasyWriteTheme.BodyFont(9F),
             ForeColor = EasyWriteTheme.TextSecondary,
             Margin = new Padding(0, 6, 0, 0),
-            Text = "Microphone recognition will be connected in Phase 03. No audio is being captured.",
+            Text = "Loading installed Windows speech recognizers...",
             TextAlign = ContentAlignment.MiddleLeft
         };
 
@@ -115,9 +118,63 @@ internal sealed class SpeechToTextView : UserControl
 
     public event EventHandler? ContentAvailabilityChanged;
 
+    public event EventHandler? StartListeningRequested;
+
+    public event EventHandler? StopListeningRequested;
+
     public bool HasTranscript => !string.IsNullOrWhiteSpace(_transcriptBox.Text);
 
-    public void ApplyState(SpeechControlState state)
+    public CultureInfo? SelectedRecognizerCulture =>
+        (_languageComboBox.SelectedItem as RecognizerListItem)?.Culture;
+
+    public void SetRecognizerCultures(IReadOnlyList<CultureInfo> cultures)
+    {
+        ArgumentNullException.ThrowIfNull(cultures);
+
+        _languageComboBox.BeginUpdate();
+        try
+        {
+            _languageComboBox.Items.Clear();
+            foreach (var culture in cultures)
+            {
+                _languageComboBox.Items.Add(new RecognizerListItem(culture));
+            }
+
+            _languageComboBox.SelectedIndex = _languageComboBox.Items.Count > 0 ? 0 : -1;
+        }
+        finally
+        {
+            _languageComboBox.EndUpdate();
+        }
+    }
+
+    public void AppendResult(SpeechResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        if (string.IsNullOrWhiteSpace(result.Text))
+        {
+            return;
+        }
+
+        if (_transcriptBox.TextLength > 0)
+        {
+            _transcriptBox.AppendText(Environment.NewLine);
+        }
+
+        _transcriptBox.AppendText(result.Text.Trim());
+        _transcriptBox.SelectionStart = _transcriptBox.TextLength;
+        _transcriptBox.ScrollToCaret();
+    }
+
+    public void ShowCapabilityMessage(string message, bool isError = false)
+    {
+        _capabilityMessageLabel.ForeColor = isError
+            ? EasyWriteTheme.Danger
+            : EasyWriteTheme.TextSecondary;
+        _capabilityMessageLabel.Text = message;
+    }
+
+    public void ApplyState(SpeechControlState state, SpeechOperationState operationState)
     {
         _languageComboBox.Enabled = state.RecognizerSelectionEnabled;
         _startListeningButton.Enabled = state.StartListeningEnabled;
@@ -125,14 +182,21 @@ internal sealed class SpeechToTextView : UserControl
         _clearTranscriptButton.Enabled = state.ClearTranscriptEnabled;
         _exportButton.Enabled = state.ExportEnabled;
 
-        var isListening = state.StopListeningEnabled;
-        _microphoneIndicator.BackColor = isListening
+        var isListening = operationState == SpeechOperationState.Listening;
+        var isStopping = operationState == SpeechOperationState.Stopping;
+        _microphoneIndicator.BackColor = isListening || isStopping
             ? EasyWriteTheme.Danger
             : EasyWriteTheme.Disabled;
-        _microphoneStateLabel.Text = isListening ? "Microphone is listening" : "Microphone is off";
+        _microphoneStateLabel.Text = isListening
+            ? "Microphone is listening"
+            : isStopping
+                ? "Microphone is stopping"
+                : "Microphone is off";
         _microphoneIndicator.AccessibleDescription = isListening
             ? "The microphone is active."
-            : "The microphone is off.";
+            : isStopping
+                ? "The microphone is stopping."
+                : "The microphone is off.";
     }
 
     private CardPanel CreateCard()
@@ -279,7 +343,7 @@ internal sealed class SpeechToTextView : UserControl
             Font = EasyWriteTheme.BodyFont(10.5F),
             ForeColor = EasyWriteTheme.Disabled,
             Location = new Point(10, 10),
-            Text = "Recognized speech will appear here after microphone support is connected."
+            Text = "Finalized recognized speech will appear here."
         };
         label.Click += (_, _) => _transcriptBox.Focus();
         return label;
@@ -329,5 +393,10 @@ internal sealed class SpeechToTextView : UserControl
     {
         _transcriptBox.Clear();
         _transcriptBox.Focus();
+    }
+
+    private sealed record RecognizerListItem(CultureInfo Culture)
+    {
+        public override string ToString() => $"{Culture.DisplayName} ({Culture.Name})";
     }
 }
