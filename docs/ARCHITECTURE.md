@@ -55,7 +55,8 @@ Forbidden dependencies:
 
 | Component | Responsibility | Owns/disposes |
 | --- | --- | --- |
-| `MainForm` | Window lifecycle, navigation, service composition | Child views and application services |
+| `Program` | Composition root and service lifetime | Concrete TTS service |
+| `MainForm` | Window lifecycle, navigation, command/event coordination | Child views and UI event subscriptions |
 | `TextToSpeechView` | Text editor, settings controls, playback commands, status rendering | UI controls only |
 | `SpeechToTextView` | Listen commands, transcript presentation, export commands | UI controls only |
 | `ITextToSpeechService` | Installed voices and playback lifecycle | Implementing service owns synthesizer |
@@ -67,34 +68,42 @@ Forbidden dependencies:
 | `SpeechControlStateMapper` | Derive enabled actions, labels, and accessible status from one state/capability context | Nothing disposable |
 
 `TextToSpeechView`, `SpeechToTextView`, `OperationStatusControl`, and the centralized
-state mapper are implemented in Phase 01. Production composition deliberately
-passes unavailable speech capabilities until the concrete Phase 02 and Phase 03
-adapters exist; disabled controls and inline guidance report that boundary honestly.
+state mapper were implemented in Phase 01. Phase 02 now injects the concrete TTS
+service and exposes that capability only when enabled voices are discovered.
+Speech-to-text remains unavailable, with disabled controls and inline guidance.
 
 ## Runtime composition
 
-`Program` initializes Windows Forms and constructs `MainForm`. In the feature
-phases, the composition root will create concrete infrastructure services and pass
-them into the form or views. Constructor injection is preferred; a dependency
-injection package is unnecessary unless composition becomes materially complex.
+`Program` initializes Windows Forms, constructs `TextToSpeechService`, injects it
+into `MainForm` through `ITextToSpeechService`, and disposes it after the message
+loop exits. If synthesizer construction fails, `Program` still opens the form with
+an unavailable-capability message. A dependency-injection package is unnecessary.
 
 ## Text-to-speech flow
 
 ```text
 User clicks Speak
-  → view trims and validates text
+  → view exposes text, selected voice, rate, and volume through its interaction contract
   → SpeechSettings.Validate()
   → ITextToSpeechService.SpeakAsync(...)
-  → infrastructure configures installed voice/rate/volume
+  → TextToSpeechService validates the installed voice and active-operation guard
+  → internal adapter configures installed voice/rate/volume/default output
   → SpeechSynthesizer.SpeakAsync(...)
   → service publishes Speaking / Idle or Error
-  → view maps state to status and enabled controls
+  → MainForm marshals callbacks to the UI thread
+  → centralized mapper updates status and enabled controls
 ```
 
 Pause and Resume are valid only for their corresponding states. Stop cancels queued
 prompts. Completion and cancellation both converge on a stable Idle state; an
 unexpected failure passes through Error with a friendly message and then permits
 recovery.
+
+`ISpeechSynthesizerAdapter` is internal to Infrastructure. Its production
+implementation is the only type that touches `SpeechSynthesizer`; the narrow seam
+lets tests drive completion, cancellation, errors, and late callbacks without
+installed voices or speakers. Each prompt's opaque operation token prevents a late
+completion from changing the state of a newer operation.
 
 ## Speech-to-text flow
 
@@ -153,6 +162,8 @@ default.
 ## Resource ownership
 
 - The concrete TTS service owns exactly one `SpeechSynthesizer` during its lifetime.
+- It subscribes once, cancels active speech during disposal, unsubscribes, then
+  disposes the adapter; repeated disposal is harmless.
 - The concrete STT service owns its `SpeechRecognitionEngine`, loaded grammars,
   event subscriptions, and cancellation coordination.
 - A component that subscribes to a longer-lived publisher must unsubscribe during
@@ -170,13 +181,16 @@ default.
 - Guard against re-entry by state and disabled commands.
 - Cancellation is expected control flow and should not appear as a user error.
 - Event callbacks verify the view is not disposed before marshaling to controls.
+- TTS state events may originate on a synthesizer thread. `MainForm` checks shutdown
+  and disposal flags and uses `BeginInvoke`; queued callbacks recheck those flags.
 
 ## Testing seams
 
-Core interfaces let view/state behavior use fakes without a Windows engine. Unit
-tests cover value validation, transition rules, transcript formatting, and error
-mapping as those classes are introduced. Real engine discovery, speakers, and
-microphones remain manual/integration checks on Windows.
+Core interfaces let view/state behavior use fakes without a Windows engine.
+Infrastructure tests receive an internal fake adapter through `InternalsVisibleTo`
+and cover voice filtering, settings forwarding, all playback transitions,
+cancellation, errors, re-entry, late events, and disposal. Real engine discovery is
+a separate Windows smoke check; speakers and microphones remain manual checks.
 
 ## Security and privacy
 

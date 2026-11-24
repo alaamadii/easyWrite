@@ -58,3 +58,23 @@
 The implementation PR for each requirement must mark evidence as `Automated`,
 `Manual passed`, `Manual failed`, or `Not run`. A planned test is not evidence of
 completion.
+
+## Phase 02 evidence — 2026-11-24
+
+| ID | Status | Evidence |
+| --- | --- | --- |
+| FR-01 | Automated; audible portion not run | Real `SpeechSynthesizer.SpeakAsync` integration and completion task implemented; human audible verification remains required. |
+| FR-02 | Automated | Blank input, settings, one-active-operation guard, Speaking state, and UI-state behavior covered by Core/App/Infrastructure tests. |
+| FR-03 | Automated; audible portion not run | Pause, Resume, Stop, cancellation, and state sequences covered with a deterministic adapter; audible continuity remains unverified. |
+| FR-04 | Automated/UI evidence from Phase 01 | Clear remains available only in valid states and returns focus to the editor. |
+| FR-06 | Partial, automated for TTS | Missing/invalid voice, initialization, playback, and disposal failures have recovery messages; microphone cases remain Phase 03/05. |
+| FR-07 | Automated for TTS | Speaking, Paused, Stopping, Idle, and Error update the shared status and controls. Listening remains deferred. |
+| FR-09 | Automated for TTS | Re-entrant Speak is rejected and TTS locks conflicting controls. Cross-direction behavior awaits STT. |
+| FR-10 | Automated plus startup-process check | Form shutdown prevents commands, unsubscribes, stops, and Program disposes the service. Close-during-audio remains not run. |
+| FR-11 | Automated plus real discovery probe | Enabled voices are sorted, displayed, selected, and forwarded; three real voices were detected on the development machine. |
+| FR-12 | Automated | Rate -10–10 and volume 0–100 validation and adapter forwarding are covered. Audible perception is not run. |
+| NFR-02 | Automated design evidence | Only asynchronous synthesis is used; no `.Wait()`, `.Result`, or synchronous `Speak` is used. Human responsiveness during audio is not run. |
+| NFR-05 | Partial | Re-entry, cancellation, late callback, repeated disposal, and post-dispose cases pass; repeated audible cycles remain not run. |
+| NFR-06 | Automated/build | `System.Speech` remains private to Infrastructure behind Core contracts and an internal adapter. |
+| NFR-07 | Automated/manual separation | 37 hardware-independent tests pass; real voice discovery is recorded separately from audible evidence. |
+| NFR-10 | Automated/code review | User messages are concise and wrapped failures preserve the original exception as `InnerException`. |
