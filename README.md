@@ -4,10 +4,10 @@ EasyWrite is a Windows desktop application that converts written text into spoke
 audio and microphone speech into written text. It is Project 04 for the YMH219
 Object-Oriented Programming course.
 
-> **Current status:** Phase 02 text-to-speech implementation complete and awaiting
-> audible hardware sign-off. EasyWrite discovers enabled Windows voices and provides
-> asynchronous Speak, Pause/Resume, Stop, rate, volume, cancellation, status, and
-> safe shutdown behavior. Microphone recognition and TXT export remain deferred. See
+> **Current status:** Phase 03 speech-to-text implementation complete and awaiting
+> microphone hardware sign-off. EasyWrite now provides local TTS and explicit local
+> microphone recognition with recognizer discovery, finalized-result handling,
+> cancellation, shared state, and safe shutdown. TXT export remains deferred. See
 > [Project Plan](docs/PROJECT_PLAN.md).
 
 ## Course information
@@ -77,7 +77,7 @@ src/
 tests/
   EasyWrite.App.Tests/       Deterministic presentation-state tests
   EasyWrite.Core.Tests/      Fast unit tests
-  EasyWrite.Infrastructure.Tests/ Deterministic TTS lifecycle tests
+  EasyWrite.Infrastructure.Tests/ Deterministic TTS/STT lifecycle tests
 docs/                        Product and engineering documentation
 .github/                     CI and pull-request guidance
 ```
@@ -104,10 +104,10 @@ dotnet build EasyWrite.slnx --configuration Release --no-restore
 dotnet run --project src/EasyWrite.App/EasyWrite.App.csproj
 ```
 
-The application opens the two-tab workspace. Text-to-speech controls use enabled
-voices discovered from Windows at runtime. If initialization or discovery fails,
-the application still opens and explains how to recover. Speech-to-text and export
-controls remain disabled until their later phases.
+The application opens the two-tab workspace and discovers enabled Windows voices
+and installed speech recognizers at runtime. If either capability is unavailable,
+the application still opens and explains how to recover while leaving the other
+capability usable. TXT export remains disabled until Phase 04.
 
 ## Test
 
@@ -122,12 +122,13 @@ they are tracked separately in [Testing](docs/TESTING.md).
 
 - [x] Complete two-tab Windows Forms interface
 - [x] Local text-to-speech with speak, pause/resume, and stop
-- [ ] Microphone speech-to-text with explicit start and stop
+- [x] Microphone speech-to-text with explicit start and stop
 - [x] Clear actions and visible operation status
 - [x] Voice, rate, and volume controls
 - [ ] Timestamped recognition results
 - [ ] TXT export
-- [ ] Graceful microphone, recognition-engine, and file errors
+- [ ] Graceful file-export errors
+- [x] Graceful microphone and recognition-engine errors
 - [x] Graceful TTS voice, state, initialization, and audio errors
 - [ ] Final accessibility pass and authentic screenshots
 
@@ -140,6 +141,8 @@ they are tracked separately in [Testing](docs/TESTING.md).
 - Automated CI can validate code but cannot prove microphone or speaker behavior.
 - Audible TTS output still needs a human hardware check; the assistant-run Phase 02
   validation confirmed startup and real voice discovery but did not claim hearing audio.
+- The Phase 03 development machine reported zero installed Windows recognizers, so
+  real microphone recognition is blocked until a compatible speech language is installed.
 - Final submission screenshots are not included yet because the speech workflows
   are not complete. Phase 01 UI evidence must not be presented as final behavior.
 

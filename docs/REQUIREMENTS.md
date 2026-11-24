@@ -78,3 +78,20 @@ completion.
 | NFR-06 | Automated/build | `System.Speech` remains private to Infrastructure behind Core contracts and an internal adapter. |
 | NFR-07 | Automated/manual separation | 37 hardware-independent tests pass; real voice discovery is recorded separately from audible evidence. |
 | NFR-10 | Automated/code review | User messages are concise and wrapped failures preserve the original exception as `InnerException`. |
+
+## Phase 03 evidence — 2026-11-24
+
+| ID | Status | Evidence |
+| --- | --- | --- |
+| FR-05 | Automated; microphone portion blocked | Real `SpeechRecognitionEngine` integration, dictation grammar, finalized-result mapping, and append flow are implemented. The machine has zero installed recognizers, so spoken recognition was not run. |
+| FR-06 | Automated for STT failure paths | Missing/invalid recognizer, discovery, grammar/input startup, cancellation, runtime, stop, and disposal failures have actionable messages with preserved inner exceptions. Real permission/device failures were not safely reproducible. |
+| FR-07 | Automated for STT | Listening, Stopping, Idle, and Error drive the shared status, microphone presentation, and conflict controls. |
+| FR-09 | Automated/UI-state evidence | Listening disables TTS start/playback actions; Speaking/Paused disable recognition start; Stopping blocks both directions. |
+| FR-10 | Automated plus unavailable-state startup | Shutdown unsubscribes UI handlers and Program deterministically disposes both services. Close during real Listening/Stopping is blocked by the absence of a recognizer. |
+| NFR-02 | Automated design evidence | Recognition uses `RecognizeAsync` in multiple mode; no blocking waits or synchronous recognition are used. Real microphone responsiveness is blocked. |
+| NFR-04 | Automated/code review | Microphone setup occurs only after Start Listening; discovery and startup do not silently activate recording. |
+| NFR-05 | Partial | Re-entry, repeated stop, cancellation, late callbacks, repeated disposal, and post-dispose cases pass; repeated hardware cycles remain blocked. |
+| NFR-06 | Automated/build | `System.Speech` recognition types remain private to Infrastructure behind Core contracts and internal adapters. |
+| NFR-07 | Automated/manual separation | 60 hardware-independent tests pass; a separate real discovery probe reported zero recognizers. |
+| NFR-09 | Automated/code review | Recognition remains local and no audio or transcript is persisted or transmitted. |
+| NFR-10 | Automated | Friendly recovery messages wrap engine failures while preserving source exceptions for diagnostics. |

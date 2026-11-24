@@ -55,7 +55,7 @@ Forbidden dependencies:
 
 | Component | Responsibility | Owns/disposes |
 | --- | --- | --- |
-| `Program` | Composition root and service lifetime | Concrete TTS service |
+| `Program` | Composition root and service lifetime | Concrete TTS and STT services |
 | `MainForm` | Window lifecycle, navigation, command/event coordination | Child views and UI event subscriptions |
 | `TextToSpeechView` | Text editor, settings controls, playback commands, status rendering | UI controls only |
 | `SpeechToTextView` | Listen commands, transcript presentation, export commands | UI controls only |
@@ -68,16 +68,17 @@ Forbidden dependencies:
 | `SpeechControlStateMapper` | Derive enabled actions, labels, and accessible status from one state/capability context | Nothing disposable |
 
 `TextToSpeechView`, `SpeechToTextView`, `OperationStatusControl`, and the centralized
-state mapper were implemented in Phase 01. Phase 02 now injects the concrete TTS
-service and exposes that capability only when enabled voices are discovered.
-Speech-to-text remains unavailable, with disabled controls and inline guidance.
+state mapper were implemented in Phase 01. Phase 02 injects TTS, and Phase 03 now
+injects STT. Each capability is exposed only when its real Windows engines are
+discovered; one unavailable service does not disable the other.
 
 ## Runtime composition
 
-`Program` initializes Windows Forms, constructs `TextToSpeechService`, injects it
-into `MainForm` through `ITextToSpeechService`, and disposes it after the message
-loop exits. If synthesizer construction fails, `Program` still opens the form with
-an unavailable-capability message. A dependency-injection package is unnecessary.
+`Program` initializes Windows Forms, independently constructs
+`TextToSpeechService` and `SpeechToTextService`, injects their Core interfaces into
+`MainForm`, and disposes both after the message loop exits. If either service fails
+to initialize, the form still opens with an unavailable-capability message while
+the other service remains usable. A dependency-injection package is unnecessary.
 
 ## Text-to-speech flow
 
@@ -111,20 +112,27 @@ completion from changing the state of a newer operation.
 User clicks Start Listening
   → view confirms a selected installed recognizer culture
   → ISpeechToTextService.StartListeningAsync(...)
-  → infrastructure creates/configures recognition engine
-  → default audio device becomes input
+  → service resolves culture to a real internal recognizer ID
+  → factory creates a session-scoped recognition adapter
+  → adapter loads DictationGrammar and selects the default audio input
+  → SpeechRecognitionEngine.RecognizeAsync(Multiple)
   → service publishes Listening
-  → finalized SpeechRecognized event becomes SpeechResult
+  → finalized SpeechRecognized becomes text/timestamp/confidence SpeechResult
   → UI marshals event to UI thread and appends it
 User clicks Stop / form closes
-  → service requests asynchronous stop
-  → event handlers detach and engine is disposed
+  → service publishes Stopping and requests asynchronous cancellation
+  → RecognizeCompleted detaches handlers and disposes the session engine
   → state returns to Idle
 ```
 
-Recognition callbacks may occur away from the UI thread. Views must use
-`InvokeRequired`/`BeginInvoke` (or captured synchronization context) before touching
-controls and must ignore callbacks after disposal begins.
+`ISpeechRecognitionEngineFactory` and `ISpeechRecognitionEngineAdapter` are internal
+to Infrastructure. A new engine is created for the selected recognizer on each
+session and disposed after completion. The active adapter reference is the session
+identity, so late results/completions from an older adapter are ignored.
+
+Recognition callbacks may occur away from the UI thread. `MainForm` uses
+`InvokeRequired`/`BeginInvoke`, rechecks shutdown/disposal inside queued callbacks,
+and ignores callbacks after shutdown begins.
 
 ## State model
 
@@ -164,8 +172,10 @@ default.
 - The concrete TTS service owns exactly one `SpeechSynthesizer` during its lifetime.
 - It subscribes once, cancels active speech during disposal, unsubscribes, then
   disposes the adapter; repeated disposal is harmless.
-- The concrete STT service owns its `SpeechRecognitionEngine`, loaded grammars,
-  event subscriptions, and cancellation coordination.
+- The concrete STT service owns one session-scoped recognition adapter at a time,
+  including its engine, dictation grammar, input, events, and cancellation registration.
+- Recognition completion unsubscribes and disposes that adapter before a later
+  session can become active; repeated disposal is harmless.
 - A component that subscribes to a longer-lived publisher must unsubscribe during
   disposal.
 - Form closing first prevents new work, then requests stop, then disposes services.
@@ -183,13 +193,17 @@ default.
 - Event callbacks verify the view is not disposed before marshaling to controls.
 - TTS state events may originate on a synthesizer thread. `MainForm` checks shutdown
   and disposal flags and uses `BeginInvoke`; queued callbacks recheck those flags.
+- STT state and result events follow the same marshaling rule. Recognition text is
+  appended only after a finalized event and never from the engine thread directly.
 
 ## Testing seams
 
 Core interfaces let view/state behavior use fakes without a Windows engine.
 Infrastructure tests receive an internal fake adapter through `InternalsVisibleTo`
 and cover voice filtering, settings forwarding, all playback transitions,
-cancellation, errors, re-entry, late events, and disposal. Real engine discovery is
+cancellation, errors, re-entry, late events, and disposal. STT tests use a fake
+factory/adapter to cover discovery, grammar/input setup, ordered finalized results,
+stop/cancellation, failures, late callbacks, and disposal. Real engine discovery is
 a separate Windows smoke check; speakers and microphones remain manual checks.
 
 ## Security and privacy

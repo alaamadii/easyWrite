@@ -39,6 +39,12 @@ settings forwarding, state sequences, re-entry, cancellation, synthesizer errors
 invalid voices, late callbacks, event unsubscription, disposal, and post-dispose
 commands without requiring a real speaker or installed voice.
 
+The Phase 03 suite extends Infrastructure coverage with a fake recognition-engine
+factory and session adapters. It verifies culture discovery, grammar/default-input
+configuration, finalized results and ordering, explicit stop, cancellation,
+startup/runtime failures, re-entry, late callbacks, and deterministic disposal
+without requiring an installed recognizer or microphone.
+
 ## Core test catalog
 
 | Area | Required cases |
@@ -173,6 +179,45 @@ Audible/manual matrix:
 - No-voice/no-output behavior: deterministic failure paths passed; destructive
   machine reconfiguration was not attempted.
 - UI responsiveness during audio: not run — real audio was not started.
+
+## Phase 03 speech-to-text evidence — 2026-11-24
+
+Environment: Windows 11, .NET SDK 10.0.402, branch `feat/speech-to-text`.
+The real Windows API was used for recognizer discovery only. It reported zero
+installed recognizers, so no microphone was activated and no spoken transcript is claimed.
+
+Automated results:
+
+- Release build: passed with 0 warnings and 0 errors.
+- Tests: 60 passed (7 Core, 13 App presentation, 40 Infrastructure).
+- Deterministic STT cases cover discovery, selection, grammar/input setup,
+  finalized-result mapping/order, Start/Stop, cancellation, failures, re-entry,
+  late events, unsubscription, disposal, and post-dispose commands.
+- Existing TTS coverage remains passing.
+
+Real Windows smoke results:
+
+- Installed recognizer discovery: passed; count 0.
+- Release executable startup with zero recognizers: passed; process remained healthy
+  for a three-second hidden observation and no process remained after exact-PID cleanup.
+- Unavailable-state behavior: code path and startup passed; visual text was not
+  interactively inspected during the hidden launch.
+
+Microphone/manual matrix:
+
+- Start Listening and default microphone activation: blocked — no installed recognizer.
+- Short and multi-sentence spoken recognition: blocked — no installed recognizer.
+- Ordered finalized transcript results: automated only; real speech blocked.
+- Stop Listening and repeated Start/Stop: automated only; hardware path blocked.
+- TTS/STT conflict prevention: automated UI-state coverage passed; interactive
+  microphone check blocked.
+- Closing while Listening or Stopping: blocked — no recognition session can start.
+- Missing-recognizer startup: passed with a genuine zero-recognizer environment.
+- Missing microphone and denied permission: not run — recognizer absence prevents
+  reaching microphone setup, and machine permissions were not modified.
+- Per-culture checks: blocked — no recognizer cultures are installed.
+- UI responsiveness during recognition: blocked — no real recognition session.
+- Normal interactive form close: not run during the hidden startup probe.
 
 ## Evidence record template
 
