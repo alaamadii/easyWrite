@@ -55,30 +55,35 @@ Forbidden dependencies:
 
 | Component | Responsibility | Owns/disposes |
 | --- | --- | --- |
-| `Program` | Composition root and service lifetime | Concrete TTS and STT services |
+| `Program` | Composition root and service lifetime | Concrete TTS and STT services; constructs the stateless export service |
 | `MainForm` | Window lifecycle, navigation, command/event coordination | Child views and UI event subscriptions |
 | `TextToSpeechView` | Text editor, settings controls, playback commands, status rendering | UI controls only |
 | `SpeechToTextView` | Listen commands, transcript presentation, export commands | UI controls only |
 | `ITextToSpeechService` | Installed voices and playback lifecycle | Implementing service owns synthesizer |
 | `ISpeechToTextService` | Recognizer discovery, microphone lifecycle, finalized results | Implementing service owns recognizer |
 | `ITextExportService` | Validate destination and write UTF-8 transcript | File stream/writer per operation |
+| `TranscriptSession` | Authoritative ordered collection of finalized recognition results | In-memory session results |
+| `TranscriptFormatter` | Produce the shared `[HH:mm:ss] text` entry and complete TXT document format | Nothing disposable |
 | `SpeechSettings` | Voice/rate/volume value and validation | Nothing disposable |
 | `SpeechResult` | Recognized text, timestamp, confidence | Nothing disposable |
 | `SpeechOperationState` | Shared vocabulary for visible state | Nothing disposable |
 | `SpeechControlStateMapper` | Derive enabled actions, labels, and accessible status from one state/capability context | Nothing disposable |
 
 `TextToSpeechView`, `SpeechToTextView`, `OperationStatusControl`, and the centralized
-state mapper were implemented in Phase 01. Phase 02 injects TTS, and Phase 03 now
-injects STT. Each capability is exposed only when its real Windows engines are
-discovered; one unavailable service does not disable the other.
+state mapper were implemented in Phase 01. Phase 02 injects TTS, Phase 03 injects
+STT, and Phase 04 injects local TXT export. Each speech capability is exposed only
+when its real Windows engine is discovered; one unavailable service does not
+disable the other capabilities.
 
 ## Runtime composition
 
 `Program` initializes Windows Forms, independently constructs
-`TextToSpeechService` and `SpeechToTextService`, injects their Core interfaces into
-`MainForm`, and disposes both after the message loop exits. If either service fails
-to initialize, the form still opens with an unavailable-capability message while
-the other service remains usable. A dependency-injection package is unnecessary.
+`TextToSpeechService`, `SpeechToTextService`, and `TextExportService`, then injects
+their Core interfaces into `MainForm`. The two engine-owning speech services are
+disposed after the message loop exits; the export service is stateless and owns
+resources only for the duration of an export. If a service fails to initialize,
+the form still opens with an unavailable-capability message while the other
+services remain usable. A dependency-injection package is unnecessary.
 
 ## Text-to-speech flow
 
@@ -134,6 +139,33 @@ Recognition callbacks may occur away from the UI thread. `MainForm` uses
 `InvokeRequired`/`BeginInvoke`, rechecks shutdown/disposal inside queued callbacks,
 and ignores callbacks after shutdown begins.
 
+## Transcript and export flow
+
+```text
+Finalized SpeechResult
+  -> TranscriptSession stores the complete ordered result object
+  -> TranscriptFormatter renders `[HH:mm:ss] text` in the transcript view
+User clicks Export TXT
+  -> SaveFileDialog obtains an explicit destination (Cancel performs no action)
+  -> MainForm snapshots the current TranscriptSession and enters export-busy state
+  -> ITextExportService formats the same snapshot as a UTF-8 document
+  -> an asynchronous writer creates a temporary file beside the destination
+  -> a completed write is moved over the approved destination atomically
+  -> temporary data is removed after cancellation or failure
+  -> MainForm restores controls and shows success or friendly error feedback
+```
+
+`TranscriptSession` is the source of truth for result order and count; the rich
+text box is presentation only. This avoids deriving model state from wrapped or
+multi-line display text. The same Core formatter is used by the UI and export so
+timestamps cannot drift between them. Timestamps are displayed in local time with
+the stable 24-hour `HH:mm:ss` format.
+
+Export is allowed only for a non-empty transcript and cannot be started twice.
+Recognition start and transcript clearing are disabled while a write is active.
+The form cancels an active write during shutdown, and an already existing
+destination remains intact unless the replacement document was written fully.
+
 ## State model
 
 | State | Meaning | Valid primary actions |
@@ -179,8 +211,11 @@ default.
 - A component that subscribes to a longer-lived publisher must unsubscribe during
   disposal.
 - Form closing first prevents new work, then requests stop, then disposes services.
-- Export uses `await using` for file resources and never overwrites without the
-  path already approved through the save dialog.
+- Export owns its stream and writer for one asynchronous operation and disposes
+  both before replacing the destination.
+- Export writes to a unique same-directory temporary file, removes it after
+  cancellation/failure, and never overwrites without a path approved through the
+  save dialog.
 - `Dispose` must be idempotent; finalizers are not introduced for managed wrappers.
 
 ## Threading rules
@@ -195,6 +230,8 @@ default.
   and disposal flags and uses `BeginInvoke`; queued callbacks recheck those flags.
 - STT state and result events follow the same marshaling rule. Recognition text is
   appended only after a finalized event and never from the engine thread directly.
+- TXT export is awaited without blocking the UI thread. An explicit busy flag
+  prevents re-entry, and shutdown cancellation is treated as normal control flow.
 
 ## Testing seams
 
@@ -205,6 +242,10 @@ cancellation, errors, re-entry, late events, and disposal. STT tests use a fake
 factory/adapter to cover discovery, grammar/input setup, ordered finalized results,
 stop/cancellation, failures, late callbacks, and disposal. Real engine discovery is
 a separate Windows smoke check; speakers and microphones remain manual checks.
+Phase 04 adds pure formatter/session/state tests and real temporary-directory file
+tests for UTF-8 output, Unicode and ordering, replacement, cancellation/failure
+cleanup, released file handles, and sequential exports. The internal file-writer
+seam makes interruption deterministic without simulating a successful export.
 
 ## Security and privacy
 

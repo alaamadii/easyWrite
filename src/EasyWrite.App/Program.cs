@@ -1,4 +1,5 @@
 using EasyWrite.Core.Services;
+using EasyWrite.Infrastructure.Export;
 using EasyWrite.Infrastructure.SpeechToText;
 using EasyWrite.Infrastructure.TextToSpeech;
 
@@ -13,8 +14,10 @@ internal static class Program
 
         ITextToSpeechService? textToSpeechService = null;
         ISpeechToTextService? speechToTextService = null;
+        ITextExportService? textExportService = null;
         string? synthesisInitializationError = null;
         string? recognitionInitializationError = null;
+        string? exportInitializationError = null;
         try
         {
             textToSpeechService = new TextToSpeechService();
@@ -23,6 +26,17 @@ internal static class Program
         {
             synthesisInitializationError =
                 "Windows speech could not be initialized. Check Windows speech settings and restart EasyWrite.";
+            System.Diagnostics.Debug.WriteLine(exception);
+        }
+
+        try
+        {
+            textExportService = new TextExportService();
+        }
+        catch (Exception exception)
+        {
+            exportInitializationError =
+                "Transcript export could not be initialized. Restart EasyWrite and try again.";
             System.Diagnostics.Debug.WriteLine(exception);
         }
 
@@ -43,8 +57,10 @@ internal static class Program
             Application.Run(new MainForm(
                 textToSpeechService,
                 speechToTextService,
+                textExportService,
                 synthesisInitializationError,
-                recognitionInitializationError));
+                recognitionInitializationError,
+                exportInitializationError));
         }
     }
 }

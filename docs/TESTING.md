@@ -45,6 +45,12 @@ configuration, finalized results and ordering, explicit stop, cancellation,
 startup/runtime failures, re-entry, late callbacks, and deterministic disposal
 without requiring an installed recognizer or microphone.
 
+The Phase 04 suite adds shared timestamp/document formatting, authoritative
+transcript-session behavior, export-control state, and real temporary-directory
+file checks. It verifies UTF-8 without a byte-order mark, Unicode, stable ordering,
+approved replacement, pre-cancellation, mid-write cancellation, write/path
+failures, temporary-file cleanup, released handles, and sequential exports.
+
 ## Core test catalog
 
 | Area | Required cases |
@@ -218,6 +224,47 @@ Microphone/manual matrix:
 - Per-culture checks: blocked — no recognizer cultures are installed.
 - UI responsiveness during recognition: blocked — no real recognition session.
 - Normal interactive form close: not run during the hidden startup probe.
+
+## Phase 04 timestamped transcript and TXT export evidence — 2026-11-25
+
+Environment: Windows 11 Pro, .NET SDK 10.0.402, branch
+`feat/speech-settings`. The real Windows API was queried for recognizer discovery;
+it again reported zero installed recognizers. No microphone session or spoken
+transcript is claimed.
+
+Automated results:
+
+- Release build: passed with 0 warnings and 0 errors.
+- Formatting verification: passed with no changes.
+- Tests: 84 passed (12 Core, 21 App presentation, 51 Infrastructure).
+- Core coverage verifies local `[HH:mm:ss]` entries, complete document formatting,
+  Unicode/order, blank-text policy, and no mutation of source results.
+- App coverage verifies authoritative result count/order/snapshot behavior and
+  clear/export availability during Idle, Listening, Stopping, and export-busy states.
+- Infrastructure coverage performs actual asynchronous file writes in unique
+  temporary directories. UTF-8 without BOM, replacement, cancellation/failure
+  cleanup, preserved existing content, released handles, and repeated exports passed.
+
+Real Windows smoke results:
+
+- Installed recognizer discovery: passed; count 0.
+- Release executable startup: passed; the process remained healthy for a
+  three-second hidden observation and no process remained after exact-PID cleanup.
+- Timestamped transcript and Save dialog export in the live UI: blocked because no
+  installed recognizer can produce a genuine finalized result on this machine.
+
+Manual/export matrix:
+
+- Actual generated TXT content and ordering: passed through real file-system tests;
+  no test output was written inside the repository.
+- Save dialog cancellation and visible success/error feedback: not run — they
+  require an interactive desktop session.
+- Genuine recognized timestamps compared with exported timestamps: blocked — zero
+  installed recognizers.
+- Access-denied/in-use destination through the UI: not run; deterministic service
+  failure and transcript-preservation behavior passed automatically.
+- Audible TTS, microphone capture, speech accuracy, final screenshots, and final
+  accessibility/layout review: not run; no unsupported claim is made.
 
 ## Evidence record template
 

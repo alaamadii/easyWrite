@@ -20,6 +20,7 @@ public static class SpeechControlStateMapper
         var isListening = context.OperationState == SpeechOperationState.Listening;
         var isStopping = context.OperationState == SpeechOperationState.Stopping;
         var isTextLocked = isSpeaking || isPaused || isStopping;
+        var canModifyTranscript = !isListening && !isStopping && !context.ExportInProgress;
 
         var (statusText, accessibleStatus) = GetStatus(context.OperationState);
 
@@ -33,10 +34,12 @@ public static class SpeechControlStateMapper
             StopSpeechEnabled: isSpeaking || isPaused,
             ClearTextEnabled: !isTextLocked && context.HasText,
             RecognizerSelectionEnabled: !isListening && !isStopping && context.CanRecognize,
-            StartListeningEnabled: canAcceptNewOperation && context.CanRecognize,
+            StartListeningEnabled:
+                canAcceptNewOperation && context.CanRecognize && !context.ExportInProgress,
             StopListeningEnabled: isListening,
-            ClearTranscriptEnabled: !isListening && !isStopping && context.HasTranscript,
-            ExportEnabled: false,
+            ClearTranscriptEnabled: canModifyTranscript && context.HasTranscript,
+            ExportEnabled:
+                canModifyTranscript && context.CanExport && context.HasTranscript,
             StatusText: statusText,
             AccessibleStatus: accessibleStatus);
     }

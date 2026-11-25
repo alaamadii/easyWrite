@@ -118,6 +118,48 @@ public sealed class SpeechControlStateMapperTests
         Assert.Equal("Attention needed", result.StatusText);
     }
 
+    [Fact]
+    public void IdleTranscriptEnablesExportWhenServiceIsAvailable()
+    {
+        var result = Map(
+            SpeechOperationState.Idle,
+            hasTranscript: true,
+            canExport: true);
+
+        Assert.True(result.ClearTranscriptEnabled);
+        Assert.True(result.ExportEnabled);
+    }
+
+    [Theory]
+    [InlineData(SpeechOperationState.Listening)]
+    [InlineData(SpeechOperationState.Stopping)]
+    public void ActiveRecognitionDisablesTranscriptMutationAndExport(
+        SpeechOperationState operationState)
+    {
+        var result = Map(
+            operationState,
+            hasTranscript: true,
+            canExport: true);
+
+        Assert.False(result.ClearTranscriptEnabled);
+        Assert.False(result.ExportEnabled);
+    }
+
+    [Fact]
+    public void ExportInProgressPreventsRepeatedExportClearAndRecognitionStart()
+    {
+        var result = Map(
+            SpeechOperationState.Idle,
+            hasTranscript: true,
+            canRecognize: true,
+            canExport: true,
+            exportInProgress: true);
+
+        Assert.False(result.ExportEnabled);
+        Assert.False(result.ClearTranscriptEnabled);
+        Assert.False(result.StartListeningEnabled);
+    }
+
     [Theory]
     [InlineData(SpeechOperationState.Idle, "Ready")]
     [InlineData(SpeechOperationState.Speaking, "Speaking")]
@@ -140,11 +182,15 @@ public sealed class SpeechControlStateMapperTests
         bool hasText = false,
         bool hasTranscript = false,
         bool canSynthesize = false,
-        bool canRecognize = false) => SpeechControlStateMapper.Map(
+        bool canRecognize = false,
+        bool canExport = false,
+        bool exportInProgress = false) => SpeechControlStateMapper.Map(
             new SpeechUiContext(
                 operationState,
                 hasText,
                 hasTranscript,
                 canSynthesize,
-                canRecognize));
+                canRecognize,
+                canExport,
+                exportInProgress));
 }
