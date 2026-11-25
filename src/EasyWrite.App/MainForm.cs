@@ -1,3 +1,4 @@
+using System.Globalization;
 using EasyWrite.App.Controls;
 using EasyWrite.App.Presentation;
 using EasyWrite.App.Theme;
@@ -16,20 +17,29 @@ public sealed class MainForm : Form
     private readonly TabControl _workspaceTabs;
     private readonly ITextToSpeechService? _textToSpeechService;
     private readonly ISpeechToTextService? _speechToTextService;
+    private readonly ITextExportService? _textExportService;
+    private readonly TranscriptSession _transcriptSession = new();
+    private CancellationTokenSource? _exportCancellationSource;
     private SpeechOperationState _operationState = SpeechOperationState.Idle;
     private bool _canSynthesize;
     private bool _canRecognize;
+    private bool _canExport;
+    private bool _exportInProgress;
     private bool _recognitionOwnsOperation;
     private bool _shutdownStarted;
 
     public MainForm(
         ITextToSpeechService? textToSpeechService = null,
         ISpeechToTextService? speechToTextService = null,
+        ITextExportService? textExportService = null,
         string? synthesisInitializationError = null,
-        string? recognitionInitializationError = null)
+        string? recognitionInitializationError = null,
+        string? exportInitializationError = null)
     {
         _textToSpeechService = textToSpeechService;
         _speechToTextService = speechToTextService;
+        _textExportService = textExportService;
+        _canExport = textExportService is not null;
         AutoScaleDimensions = new SizeF(96F, 96F);
         AutoScaleMode = AutoScaleMode.Dpi;
         BackColor = EasyWriteTheme.WindowBackground;
@@ -57,6 +67,8 @@ public sealed class MainForm : Form
         _speechToTextView.ContentAvailabilityChanged += HandleContentAvailabilityChanged;
         _speechToTextView.StartListeningRequested += HandleStartListeningRequested;
         _speechToTextView.StopListeningRequested += HandleStopListeningRequested;
+        _speechToTextView.TranscriptClearRequested += HandleTranscriptClearRequested;
+        _speechToTextView.ExportRequested += HandleExportRequested;
         _workspaceTabs.SelectedIndexChanged += (_, _) => RenderState();
         FormClosing += HandleFormClosing;
 
@@ -89,6 +101,7 @@ public sealed class MainForm : Form
 
         LoadInstalledVoices(synthesisInitializationError);
         LoadInstalledRecognizers(recognitionInitializationError);
+        ShowExportInitializationError(exportInitializationError);
         RenderState();
     }
 
@@ -508,8 +521,100 @@ public sealed class MainForm : Form
             return;
         }
 
+        if (string.IsNullOrWhiteSpace(result.Text))
+        {
+            return;
+        }
+
+        _transcriptSession.Add(result);
         _speechToTextView.AppendResult(result);
         RenderState();
+    }
+
+    private void HandleTranscriptClearRequested(object? sender, EventArgs e)
+    {
+        if (_shutdownStarted || _exportInProgress)
+        {
+            return;
+        }
+
+        _transcriptSession.Clear();
+        _speechToTextView.ClearTranscript();
+        RenderState();
+    }
+
+    private async void HandleExportRequested(object? sender, EventArgs e)
+    {
+        if (_shutdownStarted ||
+            _exportInProgress ||
+            _textExportService is null ||
+            !_transcriptSession.HasResults)
+        {
+            return;
+        }
+
+        using var dialog = new SaveFileDialog
+        {
+            AddExtension = true,
+            DefaultExt = "txt",
+            FileName = $"EasyWrite-Transcript-{DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}.txt",
+            Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+            OverwritePrompt = true,
+            RestoreDirectory = true,
+            Title = "Export EasyWrite transcript"
+        };
+
+        if (dialog.ShowDialog(this) != DialogResult.OK)
+        {
+            return;
+        }
+
+        var results = _transcriptSession.CreateSnapshot();
+        using var cancellationSource = new CancellationTokenSource();
+        _exportCancellationSource = cancellationSource;
+        _exportInProgress = true;
+        _speechToTextView.SetExportInProgress(true);
+        RenderState();
+
+        try
+        {
+            await _textExportService.ExportAsync(
+                dialog.FileName,
+                results,
+                cancellationSource.Token);
+
+            if (!_shutdownStarted && !IsDisposed && !Disposing)
+            {
+                _speechToTextView.ShowCapabilityMessage("Transcript exported successfully.");
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Dialog cancellation and form shutdown are not export errors.
+        }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
+        {
+            ShowExportError(exception.Message);
+        }
+        catch (Exception)
+        {
+            ShowExportError(
+                "The transcript could not be saved. Choose another location and try again.");
+        }
+        finally
+        {
+            if (ReferenceEquals(_exportCancellationSource, cancellationSource))
+            {
+                _exportCancellationSource = null;
+            }
+
+            _exportInProgress = false;
+            if (!_shutdownStarted && !IsDisposed && !Disposing)
+            {
+                _speechToTextView.SetExportInProgress(false);
+                RenderState();
+            }
+        }
     }
 
     private void LoadInstalledVoices(string? initializationError)
@@ -574,6 +679,16 @@ public sealed class MainForm : Form
         }
     }
 
+    private void ShowExportInitializationError(string? initializationError)
+    {
+        if (_canExport || string.IsNullOrWhiteSpace(initializationError))
+        {
+            return;
+        }
+
+        _speechToTextView.ShowCapabilityMessage(initializationError, isError: true);
+    }
+
     private void ShowPlaybackError(string message)
     {
         if (_shutdownStarted || IsDisposed || Disposing)
@@ -596,6 +711,16 @@ public sealed class MainForm : Form
         RenderState();
     }
 
+    private void ShowExportError(string message)
+    {
+        if (_shutdownStarted || IsDisposed || Disposing)
+        {
+            return;
+        }
+
+        _speechToTextView.ShowCapabilityMessage(message, isError: true);
+    }
+
     private void HandleFormClosing(object? sender, FormClosingEventArgs e)
     {
         if (_shutdownStarted)
@@ -609,6 +734,9 @@ public sealed class MainForm : Form
         _textToSpeechView.StopRequested -= HandleStopRequested;
         _speechToTextView.StartListeningRequested -= HandleStartListeningRequested;
         _speechToTextView.StopListeningRequested -= HandleStopListeningRequested;
+        _speechToTextView.TranscriptClearRequested -= HandleTranscriptClearRequested;
+        _speechToTextView.ExportRequested -= HandleExportRequested;
+        _exportCancellationSource?.Cancel();
 
         if (_textToSpeechService is not null)
         {
@@ -643,9 +771,11 @@ public sealed class MainForm : Form
         var context = new SpeechUiContext(
             _operationState,
             _textToSpeechView.HasText,
-            _speechToTextView.HasTranscript,
+            _transcriptSession.HasResults,
             CanSynthesize: _canSynthesize,
-            CanRecognize: _canRecognize);
+            CanRecognize: _canRecognize,
+            CanExport: _canExport,
+            ExportInProgress: _exportInProgress);
         var controlState = SpeechControlStateMapper.Map(context);
 
         _textToSpeechView.ApplyState(controlState);

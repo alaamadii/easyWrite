@@ -8,4 +8,6 @@ public sealed record SpeechUiContext(
     bool HasText,
     bool HasTranscript,
     bool CanSynthesize,
-    bool CanRecognize);
+    bool CanRecognize,
+    bool CanExport = false,
+    bool ExportInProgress = false);

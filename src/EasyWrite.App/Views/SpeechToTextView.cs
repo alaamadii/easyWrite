@@ -2,6 +2,7 @@ using System.Globalization;
 using EasyWrite.App.Controls;
 using EasyWrite.App.Presentation;
 using EasyWrite.App.Theme;
+using EasyWrite.Core.Formatting;
 using EasyWrite.Core.Models;
 
 namespace EasyWrite.App.Views;
@@ -19,6 +20,7 @@ internal sealed class SpeechToTextView : UserControl
     private readonly Button _clearTranscriptButton;
     private readonly Button _exportButton;
     private readonly Label _capabilityMessageLabel;
+    private int _resultCount;
 
     public SpeechToTextView()
     {
@@ -94,12 +96,13 @@ internal sealed class SpeechToTextView : UserControl
         _clearTranscriptButton = EasyWriteTheme.CreateSecondaryButton("&Clear transcript", 4);
         _clearTranscriptButton.MinimumSize = new Size(148, 40);
         _clearTranscriptButton.AccessibleName = "Clear transcript";
-        _clearTranscriptButton.Click += (_, _) => ClearTranscript();
+        _clearTranscriptButton.Click += (_, _) => TranscriptClearRequested?.Invoke(this, EventArgs.Empty);
 
         _exportButton = EasyWriteTheme.CreateSecondaryButton("&Export TXT…", 5);
         _exportButton.MinimumSize = new Size(136, 40);
         _exportButton.AccessibleName = "Export transcript as a text file";
-        _exportButton.AccessibleDescription = "Export will be connected in Phase 04.";
+        _exportButton.AccessibleDescription = "Export finalized transcript results to a UTF-8 text file.";
+        _exportButton.Click += (_, _) => ExportRequested?.Invoke(this, EventArgs.Empty);
 
         _capabilityMessageLabel = new Label
         {
@@ -122,7 +125,11 @@ internal sealed class SpeechToTextView : UserControl
 
     public event EventHandler? StopListeningRequested;
 
-    public bool HasTranscript => !string.IsNullOrWhiteSpace(_transcriptBox.Text);
+    public event EventHandler? TranscriptClearRequested;
+
+    public event EventHandler? ExportRequested;
+
+    public bool HasTranscript => _resultCount > 0;
 
     public CultureInfo? SelectedRecognizerCulture =>
         (_languageComboBox.SelectedItem as RecognizerListItem)?.Culture;
@@ -161,9 +168,27 @@ internal sealed class SpeechToTextView : UserControl
             _transcriptBox.AppendText(Environment.NewLine);
         }
 
-        _transcriptBox.AppendText(result.Text.Trim());
+        _transcriptBox.AppendText(TranscriptFormatter.FormatEntry(result));
         _transcriptBox.SelectionStart = _transcriptBox.TextLength;
         _transcriptBox.ScrollToCaret();
+        _resultCount++;
+        UpdateTranscriptMetadata();
+    }
+
+    public void ClearTranscript()
+    {
+        _resultCount = 0;
+        _transcriptBox.Clear();
+        _transcriptBox.Focus();
+        UpdateTranscriptMetadata();
+    }
+
+    public void SetExportInProgress(bool isExporting)
+    {
+        _exportButton.Text = isExporting ? "Exporting..." : "&Export TXT...";
+        _exportButton.AccessibleDescription = isExporting
+            ? "Transcript export is in progress."
+            : "Export finalized transcript results to a UTF-8 text file.";
     }
 
     public void ShowCapabilityMessage(string message, bool isError = false)
@@ -384,15 +409,8 @@ internal sealed class SpeechToTextView : UserControl
 
     private void UpdateTranscriptMetadata()
     {
-        var resultCount = _transcriptBox.Lines.Count(line => !string.IsNullOrWhiteSpace(line));
-        _resultCountLabel.Text = resultCount == 1 ? "1 result" : $"{resultCount:N0} results";
+        _resultCountLabel.Text = _resultCount == 1 ? "1 result" : $"{_resultCount:N0} results";
         _transcriptPlaceholderLabel.Visible = _transcriptBox.TextLength == 0;
-    }
-
-    private void ClearTranscript()
-    {
-        _transcriptBox.Clear();
-        _transcriptBox.Focus();
     }
 
     private sealed record RecognizerListItem(CultureInfo Culture)
