@@ -84,12 +84,17 @@ lifecycle checks remain blocked until a compatible Windows speech language is in
 
 ## Phase 04 — Enhancements
 
-- [ ] Complete voice selection behavior and fallback rules.
-- [ ] Complete rate and volume value labels and persistence decision.
-- [ ] Format timestamped transcript entries consistently.
-- [ ] Implement UTF-8 `TextExportService` and `SaveFileDialog` integration.
-- [ ] Report export success path; handle cancel, invalid path, access, and I/O errors.
-- [ ] Add export and transcript-formatting unit tests.
+- [x] Complete voice selection behavior and fallback rules.
+- [x] Complete rate and volume value labels and persistence decision.
+- [x] Format timestamped transcript entries consistently.
+- [x] Implement UTF-8 `TextExportService` and `SaveFileDialog` integration.
+- [x] Report export success path; handle cancel, invalid path, access, and I/O errors.
+- [x] Add export and transcript-formatting unit tests.
+
+The Phase 04 code and deterministic file evidence are complete on 2026-11-25.
+Voice/rate/volume behavior was audited and remains correctly covered by Phase 02;
+settings persistence is intentionally not required. Live timestamp/export UI checks
+remain blocked because the development machine still has no installed recognizer.
 
 ## Phase 05 — Reliability and validation
 

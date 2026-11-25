@@ -95,3 +95,22 @@ completion.
 | NFR-07 | Automated/manual separation | 60 hardware-independent tests pass; a separate real discovery probe reported zero recognizers. |
 | NFR-09 | Automated/code review | Recognition remains local and no audio or transcript is persisted or transmitted. |
 | NFR-10 | Automated | Friendly recovery messages wrap engine failures while preserving source exceptions for diagnostics. |
+
+## Phase 04 evidence — 2026-11-25
+
+| ID | Status | Evidence |
+| --- | --- | --- |
+| FR-04 | Automated | Clear removes both visible transcript content and the authoritative in-memory result collection, immediately disabling export. |
+| FR-06 | Automated for export failures | Invalid destinations, missing directories, cancellation, and I/O failures preserve transcript state and provide recovery messages with inner exceptions. |
+| FR-07 | Automated/UI-state evidence | Export busy state prevents repeated export, transcript clearing, and recognition start without changing the speech-operation vocabulary. |
+| FR-10 | Automated/code review | Form closing cancels an active export; temporary files are cleaned and UI continuations check shutdown/disposal. |
+| FR-11 | Audited | Real enabled voice selection and fallback behavior remain implemented and covered by Phase 02 tests. |
+| FR-12 | Audited | Rate -10–10 and volume 0–100 labels, validation, and forwarding remain covered; persistence is intentionally not required. |
+| FR-13 | Automated; live UI path blocked | `TextExportService` writes ordered UTF-8 without BOM through an atomic temporary-file replacement. SaveFileDialog uses an approved TXT path. Genuine UI export is blocked by zero recognizers. |
+| FR-14 | Automated; live recognition blocked | UI and export share `TranscriptFormatter`, using each result's local timestamp in `[HH:mm:ss]` format. Genuine recognition display is blocked by zero recognizers. |
+| NFR-02 | Automated | Export uses asynchronous stream/writer APIs and the UI awaits without blocking. |
+| NFR-05 | Automated | Repeated sequential exports, busy-state prevention, cancellation cleanup, failure cleanup, and file-resource release pass. |
+| NFR-06 | Automated/build | Formatting remains in Core, file I/O in Infrastructure, and dialog coordination in App. |
+| NFR-07 | Automated/manual separation | 84 hardware-independent tests pass, including real temporary-directory UTF-8 output; live UI export is recorded separately as blocked. |
+| NFR-09 | Automated/code review | Files are created only after a user-approved path; there is no automatic persistence, cloud storage, or transcript logging. |
+| NFR-10 | Automated | Wrapped file failures retain original exceptions while UI messages remain concise. |
