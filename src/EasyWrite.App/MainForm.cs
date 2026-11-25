@@ -15,15 +15,21 @@ public sealed class MainForm : Form
     private readonly OperationStatusControl _operationStatusControl;
     private readonly TabControl _workspaceTabs;
     private readonly ITextToSpeechService? _textToSpeechService;
+    private readonly ISpeechToTextService? _speechToTextService;
     private SpeechOperationState _operationState = SpeechOperationState.Idle;
     private bool _canSynthesize;
+    private bool _canRecognize;
+    private bool _recognitionOwnsOperation;
     private bool _shutdownStarted;
 
     public MainForm(
         ITextToSpeechService? textToSpeechService = null,
-        string? initializationError = null)
+        ISpeechToTextService? speechToTextService = null,
+        string? synthesisInitializationError = null,
+        string? recognitionInitializationError = null)
     {
         _textToSpeechService = textToSpeechService;
+        _speechToTextService = speechToTextService;
         AutoScaleDimensions = new SizeF(96F, 96F);
         AutoScaleMode = AutoScaleMode.Dpi;
         BackColor = EasyWriteTheme.WindowBackground;
@@ -49,12 +55,20 @@ public sealed class MainForm : Form
         _textToSpeechView.PauseResumeRequested += HandlePauseResumeRequested;
         _textToSpeechView.StopRequested += HandleStopRequested;
         _speechToTextView.ContentAvailabilityChanged += HandleContentAvailabilityChanged;
+        _speechToTextView.StartListeningRequested += HandleStartListeningRequested;
+        _speechToTextView.StopListeningRequested += HandleStopListeningRequested;
         _workspaceTabs.SelectedIndexChanged += (_, _) => RenderState();
         FormClosing += HandleFormClosing;
 
         if (_textToSpeechService is not null)
         {
             _textToSpeechService.StateChanged += HandleSpeechStateChanged;
+        }
+
+        if (_speechToTextService is not null)
+        {
+            _speechToTextService.StateChanged += HandleRecognitionStateChanged;
+            _speechToTextService.ResultRecognized += HandleResultRecognized;
         }
 
         var shell = new TableLayoutPanel
@@ -73,7 +87,8 @@ public sealed class MainForm : Form
         shell.Controls.Add(_operationStatusControl, 0, 2);
         Controls.Add(shell);
 
-        LoadInstalledVoices(initializationError);
+        LoadInstalledVoices(synthesisInitializationError);
+        LoadInstalledRecognizers(recognitionInitializationError);
         RenderState();
     }
 
@@ -323,6 +338,66 @@ public sealed class MainForm : Form
         }
     }
 
+    private async void HandleStartListeningRequested(object? sender, EventArgs e)
+    {
+        if (_shutdownStarted || _speechToTextService is null)
+        {
+            return;
+        }
+
+        var culture = _speechToTextView.SelectedRecognizerCulture;
+        if (culture is null)
+        {
+            _speechToTextView.ShowCapabilityMessage(
+                "Choose an installed recognition language before starting the microphone.",
+                isError: true);
+            return;
+        }
+
+        try
+        {
+            await _speechToTextService.StartListeningAsync(culture);
+        }
+        catch (OperationCanceledException)
+        {
+            // Shutdown and explicit cancellation are expected control flow.
+        }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
+        {
+            ShowRecognitionError(exception.Message);
+        }
+        catch (Exception)
+        {
+            ShowRecognitionError(
+                "Microphone recognition failed unexpectedly. Check Windows microphone and speech-language settings.");
+        }
+    }
+
+    private async void HandleStopListeningRequested(object? sender, EventArgs e)
+    {
+        if (_shutdownStarted || _speechToTextService is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await _speechToTextService.StopListeningAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            // Shutdown and repeated stop paths may cancel the pending stop task.
+        }
+        catch (ObjectDisposedException)
+        {
+            // Shutdown won the race with this UI command.
+        }
+        catch (InvalidOperationException exception)
+        {
+            ShowRecognitionError(exception.Message);
+        }
+    }
+
     private void HandleSpeechStateChanged(object? sender, SpeechStateChangedEventArgs e)
     {
         if (_shutdownStarted || IsDisposed || Disposing)
@@ -355,9 +430,85 @@ public sealed class MainForm : Form
         }
 
         _operationState = e.CurrentState;
+        _recognitionOwnsOperation = false;
         _textToSpeechView.ShowCapabilityMessage(
             e.StatusMessage,
             e.CurrentState == SpeechOperationState.Error);
+        RenderState();
+    }
+
+    private void HandleRecognitionStateChanged(object? sender, SpeechStateChangedEventArgs e)
+    {
+        if (_shutdownStarted || IsDisposed || Disposing)
+        {
+            return;
+        }
+
+        if (InvokeRequired)
+        {
+            try
+            {
+                BeginInvoke(() => ApplyRecognitionState(e));
+            }
+            catch (InvalidOperationException)
+            {
+                // The window handle was destroyed while the callback was queued.
+            }
+
+            return;
+        }
+
+        ApplyRecognitionState(e);
+    }
+
+    private void ApplyRecognitionState(SpeechStateChangedEventArgs e)
+    {
+        if (_shutdownStarted || IsDisposed || Disposing)
+        {
+            return;
+        }
+
+        _operationState = e.CurrentState;
+        _recognitionOwnsOperation = e.CurrentState is
+            SpeechOperationState.Listening or SpeechOperationState.Stopping;
+        _speechToTextView.ShowCapabilityMessage(
+            e.StatusMessage,
+            e.CurrentState == SpeechOperationState.Error);
+        RenderState();
+    }
+
+    private void HandleResultRecognized(object? sender, SpeechResultEventArgs e)
+    {
+        if (_shutdownStarted || IsDisposed || Disposing)
+        {
+            return;
+        }
+
+        if (InvokeRequired)
+        {
+            try
+            {
+                BeginInvoke(() => AppendRecognitionResult(e.Result));
+            }
+            catch (InvalidOperationException)
+            {
+                // The window handle was destroyed while the callback was queued.
+            }
+
+            return;
+        }
+
+        AppendRecognitionResult(e.Result);
+    }
+
+    private void AppendRecognitionResult(SpeechResult result)
+    {
+        if (_shutdownStarted || IsDisposed || Disposing)
+        {
+            return;
+        }
+
+        _speechToTextView.AppendResult(result);
         RenderState();
     }
 
@@ -392,6 +543,37 @@ public sealed class MainForm : Form
         }
     }
 
+    private void LoadInstalledRecognizers(string? initializationError)
+    {
+        if (_speechToTextService is null)
+        {
+            _speechToTextView.SetRecognizerCultures([]);
+            _speechToTextView.ShowCapabilityMessage(
+                initializationError ??
+                "Microphone recognition is unavailable. Install a Windows speech language and restart EasyWrite.",
+                isError: true);
+            return;
+        }
+
+        try
+        {
+            var cultures = _speechToTextService.GetInstalledRecognizerCultures();
+            _speechToTextView.SetRecognizerCultures(cultures);
+            _canRecognize = cultures.Count > 0;
+            _speechToTextView.ShowCapabilityMessage(
+                _canRecognize
+                    ? "Ready. Choose a recognition language and select Start listening."
+                    : "No compatible Windows speech recognizer was found. Install a speech language in Windows Settings and restart EasyWrite.",
+                isError: !_canRecognize);
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or ObjectDisposedException)
+        {
+            _canRecognize = false;
+            _speechToTextView.SetRecognizerCultures([]);
+            _speechToTextView.ShowCapabilityMessage(exception.Message, isError: true);
+        }
+    }
+
     private void ShowPlaybackError(string message)
     {
         if (_shutdownStarted || IsDisposed || Disposing)
@@ -400,6 +582,17 @@ public sealed class MainForm : Form
         }
 
         _textToSpeechView.ShowCapabilityMessage(message, isError: true);
+        RenderState();
+    }
+
+    private void ShowRecognitionError(string message)
+    {
+        if (_shutdownStarted || IsDisposed || Disposing)
+        {
+            return;
+        }
+
+        _speechToTextView.ShowCapabilityMessage(message, isError: true);
         RenderState();
     }
 
@@ -414,20 +607,34 @@ public sealed class MainForm : Form
         _textToSpeechView.SpeakRequested -= HandleSpeakRequested;
         _textToSpeechView.PauseResumeRequested -= HandlePauseResumeRequested;
         _textToSpeechView.StopRequested -= HandleStopRequested;
+        _speechToTextView.StartListeningRequested -= HandleStartListeningRequested;
+        _speechToTextView.StopListeningRequested -= HandleStopListeningRequested;
 
-        if (_textToSpeechService is null)
+        if (_textToSpeechService is not null)
         {
-            return;
+            _textToSpeechService.StateChanged -= HandleSpeechStateChanged;
+            try
+            {
+                _textToSpeechService.StopSpeech();
+            }
+            catch (Exception exception) when (exception is InvalidOperationException or ObjectDisposedException)
+            {
+                // Program disposes the service immediately after the message loop exits.
+            }
         }
 
-        _textToSpeechService.StateChanged -= HandleSpeechStateChanged;
-        try
+        if (_speechToTextService is not null)
         {
-            _textToSpeechService.StopSpeech();
-        }
-        catch (Exception exception) when (exception is InvalidOperationException or ObjectDisposedException)
-        {
-            // Program disposes the service immediately after the message loop exits.
+            _speechToTextService.StateChanged -= HandleRecognitionStateChanged;
+            _speechToTextService.ResultRecognized -= HandleResultRecognized;
+            try
+            {
+                _ = ObserveShutdownStopAsync(_speechToTextService.StopListeningAsync());
+            }
+            catch (Exception exception) when (exception is InvalidOperationException or ObjectDisposedException)
+            {
+                // Program disposes the service immediately after the message loop exits.
+            }
         }
     }
 
@@ -438,14 +645,28 @@ public sealed class MainForm : Form
             _textToSpeechView.HasText,
             _speechToTextView.HasTranscript,
             CanSynthesize: _canSynthesize,
-            CanRecognize: false);
+            CanRecognize: _canRecognize);
         var controlState = SpeechControlStateMapper.Map(context);
 
         _textToSpeechView.ApplyState(controlState);
-        _speechToTextView.ApplyState(controlState);
+        _speechToTextView.ApplyState(
+            controlState,
+            _recognitionOwnsOperation ? _operationState : SpeechOperationState.Idle);
         _operationStatusControl.ApplyState(
             _operationState,
             controlState.StatusText,
             controlState.AccessibleStatus);
+    }
+
+    private static async Task ObserveShutdownStopAsync(Task stopTask)
+    {
+        try
+        {
+            await stopTask;
+        }
+        catch (Exception exception) when (exception is OperationCanceledException or InvalidOperationException)
+        {
+            // Program immediately disposes the service and no UI remains for feedback.
+        }
     }
 }

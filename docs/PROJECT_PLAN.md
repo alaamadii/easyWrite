@@ -66,16 +66,21 @@ because no human listener validated the machine's audio output.
 
 ## Phase 03 — Speech to Text
 
-- [ ] Implement `SpeechToTextService` over `SpeechRecognitionEngine`.
-- [ ] Discover installed recognizers and expose real culture choices only.
-- [ ] Load a dictation grammar and set the default audio input.
-- [ ] Implement explicit asynchronous Start Listening and Stop Listening.
-- [ ] Map finalized results to text, timestamp, and confidence.
-- [ ] Marshal recognition/state events safely to the UI thread.
-- [ ] Handle no recognizer, wrong culture, missing/disabled microphone, permissions,
+- [x] Implement `SpeechToTextService` over `SpeechRecognitionEngine`.
+- [x] Discover installed recognizers and expose real culture choices only.
+- [x] Load a dictation grammar and set the default audio input.
+- [x] Implement explicit asynchronous Start Listening and Stop Listening.
+- [x] Map finalized results to text, timestamp, and confidence.
+- [x] Marshal recognition/state events safely to the UI thread.
+- [x] Handle no recognizer, wrong culture, missing/disabled microphone, permissions,
   recognizer/audio errors, cancellation, and repeated start/stop.
-- [ ] Dispose engine, grammar, events, and cancellation resources deterministically.
+- [x] Dispose engine, grammar, events, and cancellation resources deterministically.
 - [ ] Manually verify real microphone recognition in each installed target language.
+
+Implementation and deterministic lifecycle coverage are complete on 2026-11-24.
+The real Windows discovery probe found zero installed recognizers. Application
+startup in that unavailable state passed, but spoken recognition and microphone
+lifecycle checks remain blocked until a compatible Windows speech language is installed.
 
 ## Phase 04 — Enhancements
 

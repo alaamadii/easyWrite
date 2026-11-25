@@ -76,6 +76,8 @@ public sealed class SpeechControlStateMapperTests
 
         Assert.True(result.TextEditorEnabled);
         Assert.False(result.SpeakEnabled);
+        Assert.False(result.PauseResumeEnabled);
+        Assert.False(result.StopSpeechEnabled);
         Assert.False(result.StartListeningEnabled);
         Assert.True(result.StopListeningEnabled);
         Assert.False(result.RecognizerSelectionEnabled);
