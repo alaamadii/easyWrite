@@ -406,6 +406,8 @@ Automated baseline:
   new temporary directory. Locked restore, formatting verification, Release build,
   all 90 tests, and the three-second startup smoke check passed; exact-PID cleanup
   left zero application processes, and the verified temporary clone was removed.
+- Release-evidence PR #13 Windows CI run `45815719014` passed restore, formatting,
+  Release build, all tests, and test-result upload.
 
 A temporary read-only test used the production discovery services, printed the
 results, and was removed immediately afterward. It did not request synthesis or
