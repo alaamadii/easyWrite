@@ -402,6 +402,10 @@ Automated baseline:
 - Hidden Release startup: passed; the process remained healthy for three seconds,
   its exact PID was stopped, and zero `EasyWrite.App` processes remained. No window
   handle was exposed, so this is process evidence rather than a visible UI check.
+- Pushed commit `ccf9014c07d5604bf385c2632969dbfd3b29e3a1` was cloned into a
+  new temporary directory. Locked restore, formatting verification, Release build,
+  all 90 tests, and the three-second startup smoke check passed; exact-PID cleanup
+  left zero application processes, and the verified temporary clone was removed.
 
 A temporary read-only test used the production discovery services, printed the
 results, and was removed immediately afterward. It did not request synthesis or

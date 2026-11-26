@@ -143,7 +143,8 @@ exist. These are submission gates, not software successes that can be simulated.
 - [ ] Complete genuine STT, timestamp, export, and physical lifecycle checks.
 - [ ] Complete keyboard-only and DPI 100%/150% verification.
 - [ ] Capture and inspect authentic TTS and STT screenshots.
-- [ ] Complete final clean-clone validation and open the release-evidence PR.
+- [x] Complete final clean-clone validation.
+- [ ] Open the release-evidence PR and confirm green CI.
 - [ ] Create `v1.0.0` only after the final PR is merged and the owner separately approves tagging.
 
 The Phase 07 baseline on 2026-11-26 passed with 0 build warnings/errors and all
