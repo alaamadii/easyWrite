@@ -16,7 +16,7 @@ owner approval.
 | 02 | `feat/text-to-speech` | Working local TTS and playback lifecycle | Speak, pause/resume, stop, clear, status, and missing-voice errors pass |
 | 03 | `feat/speech-to-text` | Working microphone recognition | Explicit start/stop, appended results, status, and unavailable-device/engine errors pass |
 | 04 | `feat/speech-settings` | Optional enhancements | Voice/rate/volume, timestamps, TXT export pass |
-| 05 | `fix/validation-and-errors` | Reliability, disposal, and deeper tests | Repeated cycles/close/failure cases are stable; validation suite passes |
+| 05 | `test/reliability-validation` | Reliability, disposal, and deeper tests | Repeated cycles/close/failure cases are stable; validation suite passes |
 | 06 | `docs/final-submission` | Submission evidence and documentation | Authentic screenshots, final README, checklist, clean-clone validation |
 
 ## Phase 00 — Initialization (complete)
@@ -98,14 +98,22 @@ remain blocked because the development machine still has no installed recognizer
 
 ## Phase 05 — Reliability and validation
 
-- [ ] Audit every requirement and update traceability evidence.
-- [ ] Test at least ten TTS start/stop and STT start/stop cycles.
-- [ ] Test closing while Speaking, Paused, Listening, and Stopping.
-- [ ] Test absent engine/device and file failure paths where safely reproducible.
-- [ ] Verify no cross-thread UI updates, unobserved exceptions, or hanging processes.
-- [ ] Review disposal ownership and event unsubscription.
-- [ ] Improve messages without hiding diagnostic causes.
-- [ ] Run formatting, Release build, automated tests, and full manual matrix.
+- [x] Audit every requirement and update traceability evidence.
+- [x] Test at least ten deterministic TTS start/stop and STT start/stop cycles.
+- [x] Test deterministic disposal while Speaking, Paused, Listening, and Stopping.
+- [x] Test absent engine/device and file failure paths where safely reproducible.
+- [x] Verify marshaling guards, observed background tasks, and process cleanup.
+- [x] Review disposal ownership and event unsubscription.
+- [x] Improve messages without hiding diagnostic causes.
+- [ ] Complete the physical-hardware, interactive accessibility, and DPI matrix.
+
+The deterministic Phase 05 audit is complete on 2026-11-26 with 90 passing tests.
+It adds ten-cycle TTS/STT/export checks, paused/stopping disposal coverage, late
+callback checks, export recovery, explicit view-event unsubscription, saved-path
+success feedback, and retained Debug diagnostics. The current machine has three
+enabled voices but still has zero recognizers. Audible TTS, real microphone work,
+active-state interactive close, keyboard-only review, and DPI 100%/150% therefore
+remain manual submission gates rather than claimed passes.
 
 ## Phase 06 — Final submission
 

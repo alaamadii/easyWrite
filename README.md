@@ -4,10 +4,11 @@ EasyWrite is a Windows desktop application that converts written text into spoke
 audio and microphone speech into written text. It is Project 04 for the YMH219
 Object-Oriented Programming course.
 
-> **Current status:** Phase 04 transcript enhancements complete. EasyWrite now
-> presents finalized recognition results with local timestamps and exports ordered
-> transcripts as UTF-8 TXT files through a user-approved path. Real microphone and
-> audible TTS hardware sign-off remain pending. See
+> **Current status:** Phase 05 deterministic reliability audit complete. EasyWrite
+> has 90 passing automated tests, including ten-cycle speech/export stress coverage,
+> shutdown disposal, late-callback, failure-recovery, and file-cleanup checks. Real
+> microphone, audible TTS, accessibility, and final screenshot sign-off remain
+> pending. See
 > [Project Plan](docs/PROJECT_PLAN.md).
 
 ## Course information
@@ -31,8 +32,9 @@ focused experiences:
 - **Speech to Text:** explicitly start the microphone, watch the listening state,
   receive timestamped recognition results, stop safely, clear, or export to TXT.
 
-Mandatory functionality is prioritized. Voice settings, TXT export, and
-timestamps are planned after the basic workflows work reliably.
+Mandatory functionality, voice settings, timestamps, and TXT export are
+implemented. Remaining work is physical-hardware validation, final accessibility
+checks, authentic screenshots, and submission preparation.
 
 ## Technology
 
@@ -145,8 +147,16 @@ they are tracked separately in [Testing](docs/TESTING.md).
   real microphone recognition is blocked until a compatible speech language is installed.
 - Timestamp formatting and UTF-8 file export are fully automated-tested, but the
   live UI export path is blocked until a genuine recognized result can be produced.
-- Final submission screenshots are not included yet because the speech workflows
-  are not complete. Phase 01 UI evidence must not be presented as final behavior.
+- Phase 05 verifies ten deterministic TTS start/stop cycles, ten STT start/stop
+  cycles, and ten sequential exports. These tests prove lifecycle coordination but
+  do not replace audible or microphone hardware checks.
+- The current Phase 05 machine still reports three enabled voices and zero speech
+  recognizers. No audio playback or microphone capture was started during the audit.
+- The current Windows session is at 125% DPI. The final 100%/150% layout and full
+  keyboard-only accessibility passes have not been run.
+- Final submission screenshots are not included yet because hardware and
+  interactive validation are not complete. Phase 01 UI evidence must not be
+  presented as final behavior.
 
 ## Documentation
 
