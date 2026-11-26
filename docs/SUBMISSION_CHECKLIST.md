@@ -22,6 +22,7 @@ passed.
 - [x] All 90 automated tests pass (12 Core, 21 App, 57 Infrastructure).
 - [x] Repeat restore/format/build/test from pushed commit `0b57412` in a clean clone.
 - [x] Repeat restore/format/build/test/startup from Phase 07 commit `ccf9014` in a clean clone.
+- [x] Repeat restore/format/build/test/startup from final-evidence commit `d935388` in a clean clone.
 
 ## Real Windows and hardware evidence
 

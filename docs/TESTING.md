@@ -438,6 +438,10 @@ Final automated baseline:
 - Hidden Release startup: passed; the process remained healthy for three seconds,
   exact-PID cleanup left zero `EasyWrite.App` processes, and no visible/manual claim
   is inferred from the hidden launch.
+- Pushed commit `d9353886eec980b1d61fc793ad09dbf18f84b33b` passed locked
+  restore, formatting verification, Release build, all 90 tests, and a three-second
+  startup smoke check from a new temporary clone. Exact-PID cleanup left zero app
+  processes, and the verified temporary clone was removed.
 - The temporary capability probe was removed and is not part of the repository.
 
 Owner-reported manual matrix:

@@ -163,7 +163,8 @@ interactive accessibility/DPI, and authentic screenshot gates remain open.
 - [x] Repeat production recognizer discovery after the owner reviewed Windows speech settings.
 - [ ] Produce genuine STT, live export, lifecycle, and timestamp evidence.
 - [ ] Capture an authentic timestamped STT screenshot.
-- [ ] Complete final clean-clone validation and open the final evidence PR.
+- [x] Complete final clean-clone validation.
+- [ ] Open the final evidence PR and confirm green CI.
 - [ ] Create `v1.0.0` only after the PR is merged and the owner separately approves tagging.
 
 The Phase 08 automated baseline passed with 0 warnings/errors and 90 tests. The
