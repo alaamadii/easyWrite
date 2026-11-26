@@ -271,6 +271,52 @@ public sealed class TextToSpeechServiceTests
         Assert.Equal(SpeechOperationState.Speaking, states[^1]);
     }
 
+    [Fact]
+    public async Task TenStartStopCyclesReturnToIdleWithoutOverlappingOperations()
+    {
+        using var service = CreateService(out var adapter);
+        var states = ObserveStates(service);
+
+        for (var cycle = 0; cycle < 10; cycle++)
+        {
+            var task = service.SpeakAsync($"Cycle {cycle}", DefaultSettings);
+
+            service.StopSpeech();
+            adapter.Complete(cancelled: true);
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => task);
+            Assert.Equal(SpeechOperationState.Idle, states[^1]);
+        }
+
+        Assert.Equal(10, adapter.CancelCount);
+        Assert.Equal(30, states.Count);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task DisposeWhilePausedOrStoppingCancelsAndIgnoresLateCompletion(
+        bool requestStopBeforeDispose)
+    {
+        var service = CreateService(out var adapter);
+        var states = ObserveStates(service);
+        var task = service.SpeakAsync("Hello", DefaultSettings);
+        service.PauseSpeech();
+        if (requestStopBeforeDispose)
+        {
+            service.StopSpeech();
+        }
+
+        service.Dispose();
+        var stateCountAfterDispose = states.Count;
+        adapter.Complete(cancelled: true);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => task);
+        Assert.Equal(stateCountAfterDispose, states.Count);
+        Assert.Equal(1, adapter.UnsubscriptionCount);
+        Assert.Equal(1, adapter.DisposeCount);
+    }
+
     private static TextToSpeechService CreateService(
         out FakeSpeechSynthesizerAdapter adapter)
     {

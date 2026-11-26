@@ -197,7 +197,8 @@ small application-facing result/message vocabulary:
 
 The UI must not expose a stack trace. Development diagnostics may log exception
 type/message, but no microphone audio or recognized content should be logged by
-default.
+default. `MainForm` writes caught exceptions to the Debug output while continuing
+to show concise recovery guidance; transcript content is never part of that log.
 
 ## Resource ownership
 
@@ -210,6 +211,8 @@ default.
   session can become active; repeated disposal is harmless.
 - A component that subscribes to a longer-lived publisher must unsubscribe during
   disposal.
+- Form shutdown also detaches view-command, content-availability, workspace-tab,
+  speech-state, and recognition-result handlers before requesting cleanup.
 - Form closing first prevents new work, then requests stop, then disposes services.
 - Export owns its stream and writer for one asynchronous operation and disposes
   both before replacing the destination.
@@ -246,6 +249,10 @@ Phase 04 adds pure formatter/session/state tests and real temporary-directory fi
 tests for UTF-8 output, Unicode and ordering, replacement, cancellation/failure
 cleanup, released file handles, and sequential exports. The internal file-writer
 seam makes interruption deterministic without simulating a successful export.
+Phase 05 extends these seams through ten TTS start/stop cycles, ten STT session
+cycles, ten exports, disposal while Paused/Stopping, late callbacks after disposal,
+and successful retry after a failed write. Hardware-independent tests verify
+lifecycle coordination; they do not claim audible output or microphone accuracy.
 
 ## Security and privacy
 

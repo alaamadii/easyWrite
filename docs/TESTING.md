@@ -51,6 +51,12 @@ file checks. It verifies UTF-8 without a byte-order mark, Unicode, stable orderi
 approved replacement, pre-cancellation, mid-write cancellation, write/path
 failures, temporary-file cleanup, released handles, and sequential exports.
 
+The Phase 05 suite turns the existing seams into deterministic stress checks. It
+runs ten TTS start/stop cycles, ten complete STT sessions with one result each, and
+ten sequential exports. It also covers disposal while Paused/Stopping, late
+callbacks after disposal, per-session event unsubscription, and a successful
+export retry after a partial-write failure.
+
 ## Core test catalog
 
 | Area | Required cases |
@@ -265,6 +271,58 @@ Manual/export matrix:
   failure and transcript-preservation behavior passed automatically.
 - Audible TTS, microphone capture, speech accuracy, final screenshots, and final
   accessibility/layout review: not run; no unsupported claim is made.
+
+## Phase 05 reliability and validation evidence — 2026-11-26
+
+Environment: Windows 11 Pro 10.0.22631, .NET SDK 10.0.402, branch
+`test/reliability-validation`, 125% display scaling (120 DPI). No audio playback or
+microphone capture was started during this audit.
+
+Automated results:
+
+- Locked restore: passed.
+- Formatting verification: passed with no changes.
+- Release build: passed with 0 warnings and 0 errors.
+- Tests: 90 passed (12 Core, 21 App presentation, 57 Infrastructure).
+- Ten TTS start/stop cycles returned to Idle without overlap.
+- Ten STT start/stop sessions created and disposed ten separate adapters, produced
+  exactly ten results, and unsubscribed every session handler once.
+- Ten sequential real file-system exports completed without leaked temporary files.
+- Disposal while Paused and Stopping cancels pending work and ignores late callbacks.
+- A partial-write failure removes its temporary file and the same export service
+  succeeds on the next request.
+- Source audit found no production `.Wait()`, `.Result`, synchronous speech or
+  recognition call, or synchronous long-running export path.
+- View/content/tab and service events have explicit shutdown unsubscription where
+  ownership crosses the form boundary. User-facing failures remain concise while
+  caught exceptions are retained in Debug diagnostics.
+
+Real Windows capability and process results:
+
+- Enabled voice discovery: passed; count 3 (`Microsoft Zira Desktop`,
+  `Microsoft Tolga`, and `Microsoft Naayf`).
+- Installed recognizer discovery: passed; count 0.
+- Release executable startup: passed; the hidden process remained healthy for a
+  three-second observation.
+- Normal close: not run. The hidden launch exposed no main-window handle, so only
+  its exact process ID was force-cleaned; the remaining `EasyWrite.App` count was 0.
+
+Manual/hardware matrix:
+
+- Audible short/multi-sentence TTS, pause/resume continuity, rate/volume perception,
+  and ten physical start/stop cycles: not run — no human listener participated.
+- Close while real Speaking or Paused: not run; deterministic service disposal for
+  Speaking, Paused, and Stopping passed.
+- Start Listening, real results, timestamps, ten physical STT cycles, and close
+  while Listening/Stopping: blocked — the genuine recognizer count is 0.
+- Microphone absence/permission changes: not run — machine settings were not changed.
+- Save-dialog cancellation, successful UI export, and visible recovery feedback:
+  not run in an interactive desktop. Real temporary-directory content, replacement,
+  cancellation, failure, retry, cleanup, and handle-release checks passed.
+- Default/minimum layout at 125% DPI retains the earlier Phase 01 evidence but was
+  not re-run interactively in Phase 05. DPI 100%/150% and the full keyboard-only
+  accessibility pass remain not run.
+- Final screenshots: not run; authentic screenshots remain a Phase 06 deliverable.
 
 ## Evidence record template
 

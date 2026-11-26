@@ -138,6 +138,42 @@ public sealed class TextExportServiceTests
     }
 
     [Fact]
+    public async Task ExportCanRecoverAfterWriteFailure()
+    {
+        using var directory = new TemporaryDirectory();
+        var failedDestination = directory.File("failed.txt");
+        var recoveredDestination = directory.File("recovered.txt");
+        var attempt = 0;
+        var writer = new FakeTranscriptFileWriter
+        {
+            WriteAction = async (path, content, cancellationToken) =>
+            {
+                attempt++;
+                if (attempt == 1)
+                {
+                    await File.WriteAllTextAsync(path, "partial", CancellationToken.None);
+                    throw new IOException("First write failed");
+                }
+
+                await File.WriteAllTextAsync(
+                    path,
+                    content,
+                    new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+                    cancellationToken);
+            }
+        };
+        var service = new TextExportService(writer);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.ExportAsync(failedDestination, CreateResults()));
+        await service.ExportAsync(recoveredDestination, CreateResults());
+
+        Assert.False(File.Exists(failedDestination));
+        Assert.True(File.Exists(recoveredDestination));
+        Assert.Equal([recoveredDestination], Directory.EnumerateFiles(directory.Path).ToArray());
+    }
+
+    [Fact]
     public async Task InvalidDirectoryPreservesUnderlyingException()
     {
         using var directory = new TemporaryDirectory();
@@ -169,10 +205,12 @@ public sealed class TextExportServiceTests
         using var directory = new TemporaryDirectory();
         var service = new TextExportService();
 
-        await service.ExportAsync(directory.File("first.txt"), CreateResults());
-        await service.ExportAsync(directory.File("second.txt"), CreateResults());
+        for (var export = 0; export < 10; export++)
+        {
+            await service.ExportAsync(directory.File($"transcript-{export}.txt"), CreateResults());
+        }
 
-        Assert.Equal(2, Directory.EnumerateFiles(directory.Path).Count());
+        Assert.Equal(10, Directory.EnumerateFiles(directory.Path).Count());
     }
 
     private static SpeechResult[] CreateResults() =>

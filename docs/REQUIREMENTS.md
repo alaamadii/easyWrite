@@ -56,8 +56,8 @@
 ## Verification legend
 
 The implementation PR for each requirement must mark evidence as `Automated`,
-`Manual passed`, `Manual failed`, or `Not run`. A planned test is not evidence of
-completion.
+`Manual passed`, `Manual failed`, `Blocked`, or `Not run`. A planned test is not
+evidence of completion.
 
 ## Phase 02 evidence — 2026-11-24
 
@@ -114,3 +114,33 @@ completion.
 | NFR-07 | Automated/manual separation | 84 hardware-independent tests pass, including real temporary-directory UTF-8 output; live UI export is recorded separately as blocked. |
 | NFR-09 | Automated/code review | Files are created only after a user-approved path; there is no automatic persistence, cloud storage, or transcript logging. |
 | NFR-10 | Automated | Wrapped file failures retain original exceptions while UI messages remain concise. |
+
+## Phase 05 reliability-audit evidence — 2026-11-26
+
+| ID | Status | Evidence |
+| --- | --- | --- |
+| FR-01 | Automated; audible portion not run | Asynchronous synthesis and completion remain covered. No human listener verified audio during Phase 05. |
+| FR-02 | Automated | Input/settings validation, one-active-operation guards, Speaking state, and ten deterministic start/stop cycles pass. |
+| FR-03 | Automated; audible portion not run | Pause, Resume, Stop, cancellation, and disposal while Paused/Stopping pass; audible continuity was not run. |
+| FR-04 | Automated plus prior UI evidence | Text/transcript clearing and focus behavior remain implemented; transcript clear updates both presentation and stored results. |
+| FR-05 | Automated; microphone portion blocked | Ten fake-engine sessions and finalized-result ordering pass. The genuine recognizer count is 0, so microphone recognition is blocked. |
+| FR-06 | Automated; destructive machine changes not run | Discovery, startup, runtime, stop, cancellation, and file failures retain causes and provide recovery guidance. Permissions/devices were not reconfigured. |
+| FR-07 | Automated plus prior UI evidence | All operation states map to text, accessible descriptions, and valid controls; no color-only state is required. |
+| FR-08 | Startup passed; interactive review not run | The Release WinForms executable remained healthy for three seconds. The hidden process had no window handle, so interactive rendering was not re-claimed. |
+| FR-09 | Automated | The centralized mapper continues to reject conflicting TTS/STT actions and export re-entry. |
+| FR-10 | Automated; active hardware close not run/blocked | Disposal while speech is Speaking/Paused/Stopping and recognition is Listening/Stopping passes with late callbacks ignored. Real listening close is blocked. |
+| FR-11 | Automated plus real discovery | Three enabled voices were genuinely enumerated: Microsoft Zira Desktop, Microsoft Tolga, and Microsoft Naayf. Audible selection was not run. |
+| FR-12 | Automated; audible portion not run | Rate/volume ranges, labels, and adapter forwarding pass; audible perception was not run. |
+| FR-13 | Automated; Save dialog not run | Ten sequential exports, recovery after failure, cancellation, UTF-8, replacement, cleanup, and released handles pass. Success feedback now includes the chosen path. |
+| FR-14 | Automated; live recognition blocked | Shared local `[HH:mm:ss]` formatting and ordering pass; genuine recognized timestamps remain blocked by zero recognizers. |
+| FR-15 | Deferred | Recognition confidence remains in the model but has no optional visual treatment; this Could requirement is not claimed. |
+| NFR-01 | Automated/code review plus prior UI evidence | Primary controls and consistent English labels remain visible; final interactive review is outstanding. |
+| NFR-02 | Automated/code review | No production `.Wait()`, `.Result`, synchronous speech/recognition, or synchronous long-running export path was found. |
+| NFR-03 | Partial manual/code review | Text accompanies state color and controls have tab indices/accessibility names. Prior 125% evidence exists; final keyboard and 100%/150% checks are not run. |
+| NFR-04 | Automated/code review | Microphone setup still begins only after explicit Start Listening and the Listening state remains textual. |
+| NFR-05 | Automated; hardware cycles not run/blocked | Ten deterministic TTS/STT/export cycles, paused/stopping disposal, late callbacks, and process cleanup pass. Real STT cycles are blocked. |
+| NFR-06 | Automated/build | Layer boundaries remain intact; no Windows Forms or `System.Speech` reference was added to Core. |
+| NFR-07 | Automated/manual separation | 90 hardware-independent tests pass. Hardware, DPI, keyboard, and audio evidence remains explicitly separate. |
+| NFR-08 | Documented | README prerequisites and limitations continue to state Windows-only support. |
+| NFR-09 | Automated/code review | No audio is persisted or transmitted; transcript export remains explicitly user initiated; no secrets were added. |
+| NFR-10 | Automated/code review | Wrapped infrastructure errors retain inner exceptions, and caught UI failures are now written to Debug without logging transcript content. |
