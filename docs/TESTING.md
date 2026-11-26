@@ -442,6 +442,8 @@ Final automated baseline:
   restore, formatting verification, Release build, all 90 tests, and a three-second
   startup smoke check from a new temporary clone. Exact-PID cleanup left zero app
   processes, and the verified temporary clone was removed.
+- Final evidence PR #14 Windows CI run `45823762169` passed restore, formatting,
+  Release build, all tests, and test-result upload.
 - The temporary capability probe was removed and is not part of the repository.
 
 Owner-reported manual matrix:

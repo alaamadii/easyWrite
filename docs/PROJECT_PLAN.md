@@ -164,7 +164,7 @@ interactive accessibility/DPI, and authentic screenshot gates remain open.
 - [ ] Produce genuine STT, live export, lifecycle, and timestamp evidence.
 - [ ] Capture an authentic timestamped STT screenshot.
 - [x] Complete final clean-clone validation.
-- [ ] Open the final evidence PR and confirm green CI.
+- [x] Open final evidence PR #14 and confirm green CI.
 - [ ] Create `v1.0.0` only after the PR is merged and the owner separately approves tagging.
 
 The Phase 08 automated baseline passed with 0 warnings/errors and 90 tests. The

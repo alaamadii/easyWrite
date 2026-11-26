@@ -69,8 +69,8 @@ passed.
 - [x] Push `docs/submission-closure` and open release-evidence PR #13.
 - [x] Confirm GitHub Actions passes on PR #13 (run `45815719014`).
 - [x] Obtain owner approval and merge PR #13 (`2c8c8d1`).
-- [ ] Push `docs/final-manual-evidence` and open the final evidence PR.
-- [ ] Confirm GitHub Actions passes on the final evidence PR.
+- [x] Push `docs/final-manual-evidence` and open final evidence PR #14.
+- [x] Confirm GitHub Actions passes on PR #14 (run `45823762169`).
 - [ ] Obtain owner approval and merge the final evidence PR.
 - [ ] Create and push `v1.0.0` only after the owner explicitly approves tagging.
 
