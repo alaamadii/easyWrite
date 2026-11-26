@@ -69,7 +69,7 @@ public sealed class MainForm : Form
         _speechToTextView.StopListeningRequested += HandleStopListeningRequested;
         _speechToTextView.TranscriptClearRequested += HandleTranscriptClearRequested;
         _speechToTextView.ExportRequested += HandleExportRequested;
-        _workspaceTabs.SelectedIndexChanged += (_, _) => RenderState();
+        _workspaceTabs.SelectedIndexChanged += HandleSelectedWorkspaceChanged;
         FormClosing += HandleFormClosing;
 
         if (_textToSpeechService is not null)
@@ -253,6 +253,8 @@ public sealed class MainForm : Form
 
     private void HandleContentAvailabilityChanged(object? sender, EventArgs e) => RenderState();
 
+    private void HandleSelectedWorkspaceChanged(object? sender, EventArgs e) => RenderState();
+
     private async void HandleSpeakRequested(object? sender, EventArgs e)
     {
         if (_shutdownStarted || _textToSpeechService is null)
@@ -293,10 +295,12 @@ public sealed class MainForm : Form
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
         {
+            RecordDiagnostic(exception);
             ShowPlaybackError(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            RecordDiagnostic(exception);
             ShowPlaybackError(
                 "Speech playback failed unexpectedly. Check Windows speech and audio settings, then try again.");
         }
@@ -326,6 +330,7 @@ public sealed class MainForm : Form
         }
         catch (InvalidOperationException exception)
         {
+            RecordDiagnostic(exception);
             ShowPlaybackError(exception.Message);
         }
     }
@@ -347,6 +352,7 @@ public sealed class MainForm : Form
         }
         catch (InvalidOperationException exception)
         {
+            RecordDiagnostic(exception);
             ShowPlaybackError(exception.Message);
         }
     }
@@ -377,10 +383,12 @@ public sealed class MainForm : Form
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
         {
+            RecordDiagnostic(exception);
             ShowRecognitionError(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            RecordDiagnostic(exception);
             ShowRecognitionError(
                 "Microphone recognition failed unexpectedly. Check Windows microphone and speech-language settings.");
         }
@@ -407,6 +415,7 @@ public sealed class MainForm : Form
         }
         catch (InvalidOperationException exception)
         {
+            RecordDiagnostic(exception);
             ShowRecognitionError(exception.Message);
         }
     }
@@ -585,7 +594,8 @@ public sealed class MainForm : Form
 
             if (!_shutdownStarted && !IsDisposed && !Disposing)
             {
-                _speechToTextView.ShowCapabilityMessage("Transcript exported successfully.");
+                _speechToTextView.ShowCapabilityMessage(
+                    $"Transcript exported successfully to {dialog.FileName}.");
             }
         }
         catch (OperationCanceledException)
@@ -594,10 +604,12 @@ public sealed class MainForm : Form
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
         {
+            RecordDiagnostic(exception);
             ShowExportError(exception.Message);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            RecordDiagnostic(exception);
             ShowExportError(
                 "The transcript could not be saved. Choose another location and try again.");
         }
@@ -642,6 +654,7 @@ public sealed class MainForm : Form
         }
         catch (Exception exception) when (exception is InvalidOperationException or ObjectDisposedException)
         {
+            RecordDiagnostic(exception);
             _canSynthesize = false;
             _textToSpeechView.SetVoices([]);
             _textToSpeechView.ShowCapabilityMessage(exception.Message, isError: true);
@@ -673,6 +686,7 @@ public sealed class MainForm : Form
         }
         catch (Exception exception) when (exception is InvalidOperationException or ObjectDisposedException)
         {
+            RecordDiagnostic(exception);
             _canRecognize = false;
             _speechToTextView.SetRecognizerCultures([]);
             _speechToTextView.ShowCapabilityMessage(exception.Message, isError: true);
@@ -729,13 +743,16 @@ public sealed class MainForm : Form
         }
 
         _shutdownStarted = true;
+        _textToSpeechView.ContentAvailabilityChanged -= HandleContentAvailabilityChanged;
         _textToSpeechView.SpeakRequested -= HandleSpeakRequested;
         _textToSpeechView.PauseResumeRequested -= HandlePauseResumeRequested;
         _textToSpeechView.StopRequested -= HandleStopRequested;
+        _speechToTextView.ContentAvailabilityChanged -= HandleContentAvailabilityChanged;
         _speechToTextView.StartListeningRequested -= HandleStartListeningRequested;
         _speechToTextView.StopListeningRequested -= HandleStopListeningRequested;
         _speechToTextView.TranscriptClearRequested -= HandleTranscriptClearRequested;
         _speechToTextView.ExportRequested -= HandleExportRequested;
+        _workspaceTabs.SelectedIndexChanged -= HandleSelectedWorkspaceChanged;
         _exportCancellationSource?.Cancel();
 
         if (_textToSpeechService is not null)
@@ -799,4 +816,7 @@ public sealed class MainForm : Form
             // Program immediately disposes the service and no UI remains for feedback.
         }
     }
+
+    private static void RecordDiagnostic(Exception exception) =>
+        System.Diagnostics.Debug.WriteLine(exception);
 }
