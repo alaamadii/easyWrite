@@ -2,7 +2,7 @@
 
 ## Delivery strategy
 
-Development is divided into eight reviewable phases. Mandatory requirements are
+Development is divided into nine reviewable phases. Mandatory requirements are
 completed before optional features and visual polish. Each phase must update docs,
 build, test, commit, push, and open a pull request; no PR is merged without explicit
 owner approval.
@@ -19,6 +19,7 @@ owner approval.
 | 05 | `test/reliability-validation` | Reliability, disposal, and deeper tests | Repeated cycles/close/failure cases are stable; validation suite passes |
 | 06 | `docs/final-submission` | Submission evidence and documentation | Authentic screenshots, final README, checklist, clean-clone validation |
 | 07 | `docs/submission-closure` | Manual evidence and release closure | Verified identity, hardware/accessibility evidence, authentic screenshots, final green PR |
+| 08 | `docs/final-manual-evidence` | Owner-attested validation and authentic evidence | Verified identity, TTS/accessibility evidence, honest STT blocker, final review PR |
 
 ## Phase 00 — Initialization (complete)
 
@@ -118,10 +119,10 @@ remain manual submission gates rather than claimed passes.
 
 ## Phase 06 — Final submission
 
-- [ ] Replace README student placeholders with verified details.
+- [x] Replace the README name placeholder with verified details; completed in Phase 08.
 - [ ] Capture at least two authentic screenshots from the final running build.
 - [x] Update README checkboxes, limitations, setup, and actual validation results.
-- [x] Validate all links and remove stale TODO text except the two genuine identity placeholders.
+- [x] Validate all links and remove stale placeholder text; identity was finalized in Phase 08.
 - [x] Perform clean-clone restore, Release build, tests, and run.
 - [x] Confirm no secrets, personal transcript data, build output, or fake evidence.
 - [x] Create the final submission checklist.
@@ -138,19 +139,39 @@ exist. These are submission gates, not software successes that can be simulated.
 - [x] Confirm PR #12 merged into `main` with successful CI.
 - [x] Repeat the locked restore, format, Release build, and 90-test baseline.
 - [x] Repeat real voice/recognizer discovery without starting audio or microphone input.
-- [ ] Replace README student placeholders with verified details.
-- [ ] Complete the human-observed TTS hardware matrix.
+- [x] Replace the README identity placeholder with the verified name; omit the student number by owner instruction.
+- [x] Complete the owner-reported TTS hardware matrix.
 - [ ] Complete genuine STT, timestamp, export, and physical lifecycle checks.
-- [ ] Complete keyboard-only and DPI 100%/150% verification.
+- [x] Complete owner-reported keyboard-only and DPI 100%/150% verification.
 - [ ] Capture and inspect authentic TTS and STT screenshots.
 - [x] Complete final clean-clone validation.
 - [x] Open release-evidence PR #13 and confirm green CI.
+- [x] Merge PR #13 into `main` at `2c8c8d1` with owner approval.
 - [ ] Create `v1.0.0` only after the final PR is merged and the owner separately approves tagging.
 
 The Phase 07 baseline on 2026-11-26 passed with 0 build warnings/errors and all
 90 tests. Read-only discovery again found Microsoft Zira Desktop, Microsoft Tolga,
 and Microsoft Naayf, but zero recognizers. Identity, human-observed audio,
 interactive accessibility/DPI, and authentic screenshot gates remain open.
+
+## Phase 08 — Owner-assisted final evidence
+
+- [x] Record the verified student name `ALAA MADI` and omit the student number by explicit owner instruction.
+- [x] Run locked restore, formatting verification, Release build, and all 90 tests.
+- [x] Record the owner's successful TTS, keyboard, accessibility, contrast, and DPI report.
+- [x] Capture and visually inspect an authentic paused-TTS screenshot from the real Release app.
+- [x] Repeat production recognizer discovery after the owner reviewed Windows speech settings.
+- [ ] Produce genuine STT, live export, lifecycle, and timestamp evidence.
+- [ ] Capture an authentic timestamped STT screenshot.
+- [x] Complete final clean-clone validation.
+- [x] Open final evidence PR #14 and confirm green CI.
+- [ ] Create `v1.0.0` only after the PR is merged and the owner separately approves tagging.
+
+The Phase 08 automated baseline passed with 0 warnings/errors and 90 tests. The
+owner reported the requested TTS and interactive accessibility/DPI matrix successful.
+The production service still enumerated zero recognizers, so STT-dependent evidence
+remains blocked and is not simulated. One authentic 1182×799 TTS screenshot was
+captured in the real Paused state and inspected for privacy and legibility.
 
 ## Risk register
 

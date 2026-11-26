@@ -362,8 +362,8 @@ Final automated results:
 - Tracked-file hygiene checks found no `bin`, `obj`, `TestResults`, binary/image
   artifacts, log/test-result files, machine-specific paths, private keys, or API-key
   patterns.
-- The only remaining `TODO` values are the deliberately unfilled student name and
-  student number in the README; the owner has not supplied those values.
+- At the Phase 06 audit, the README identity fields were deliberately unresolved.
+  Phase 08 later supplied the verified name and omitted the number by owner instruction.
 
 Real Windows capability evidence:
 
@@ -422,3 +422,62 @@ recognition lifecycle checks, and the required STT screenshot remain blocked on
 this machine. Audible TTS, keyboard/DPI review, and screenshots remain not run
 because no human-observed interactive session has been completed. Student identity
 also remains unverified and is not inferred from repository or account data.
+
+## Phase 08 owner-assisted final evidence — 2026-11-26
+
+Environment: Windows 11 Pro 10.0.22631, .NET SDK 10.0.402, branch
+`docs/final-manual-evidence`. Verified student name: `ALAA MADI`. The student-number
+field is intentionally omitted by the owner's explicit instruction.
+
+Final automated baseline:
+
+- Locked restore: passed.
+- Formatting verification: passed with no changes.
+- Release build: passed with 0 warnings and 0 errors.
+- Tests: 90 passed (12 Core, 21 App presentation, and 57 Infrastructure).
+- Hidden Release startup: passed; the process remained healthy for three seconds,
+  exact-PID cleanup left zero `EasyWrite.App` processes, and no visible/manual claim
+  is inferred from the hidden launch.
+- Pushed commit `d9353886eec980b1d61fc793ad09dbf18f84b33b` passed locked
+  restore, formatting verification, Release build, all 90 tests, and a three-second
+  startup smoke check from a new temporary clone. Exact-PID cleanup left zero app
+  processes, and the verified temporary clone was removed.
+- Final evidence PR #14 Windows CI run `45823762169` passed restore, formatting,
+  Release build, all tests, and test-result upload.
+- The temporary capability probe was removed and is not part of the repository.
+
+Owner-reported manual matrix:
+
+- Audible short and multi-sentence TTS: passed.
+- Available voice selection plus rate and volume behavior: passed.
+- Pause, Resume, Stop, ten physical cycles, active-audio close, and UI
+  responsiveness: passed.
+- Keyboard-only navigation, access keys, focus, accessible descriptions, textual
+  status, contrast, and default/minimum layout: passed.
+- 100%, 125%, and 150% DPI layout review: passed.
+
+The statements above are explicitly owner-reported manual evidence. The assistant
+did not infer audible perception or DPI changes from automated state alone.
+
+Directly observed capture evidence:
+
+- The real Release app accepted non-personal text, started actual TTS, entered
+  Paused, exposed Resume/Stop, and displayed matching inline/global Paused status.
+- One rapid repeat attempt exposed `Audio playback could not start...`; the error
+  was not hidden. After an exact-process restart, TTS again reached Paused and the
+  final image was captured successfully.
+- `docs/screenshots/text-to-speech.png` is 1182×799, window-only, legible, and free
+  of usernames, machine paths, notifications, transcripts, and unrelated windows.
+- Its SHA-256 is
+  `CAEDD651F6193CB77A58F0656DE63A590BA489A3CF5DCA2A38915E75A9BE259D`.
+
+Remaining blocked evidence:
+
+- After Windows speech settings were manually reviewed, a fresh read-only probe
+  through the production services still enumerated 3 voices and 0 compatible
+  recognizers.
+- Genuine microphone recognition, finalized results, timestamps, STT repeated
+  cycles/active-close behavior, live recognized-transcript export, and
+  `speech-to-text.png` remain blocked.
+- No typed/injected transcript, Voice Access result, unavailable-state image,
+  mockup, or generated image is substituted for those requirements.
