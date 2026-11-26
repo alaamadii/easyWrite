@@ -349,6 +349,57 @@ public sealed class SpeechToTextServiceTests
             () => service.StopListeningAsync());
     }
 
+    [Fact]
+    public async Task TenStartStopCyclesReleaseEveryEngineWithoutDuplicateCallbacks()
+    {
+        using var service = CreateService(out var factory);
+        var states = ObserveStates(service);
+        var results = ObserveResults(service);
+
+        for (var cycle = 0; cycle < 10; cycle++)
+        {
+            await service.StartListeningAsync(EnglishCulture);
+            var engine = factory.CreatedEngines[cycle];
+            engine.EmitResult($"cycle {cycle}");
+            var stopTask = service.StopListeningAsync();
+            engine.Complete();
+            await stopTask;
+
+            Assert.Equal(1, engine.CancelCount);
+            Assert.Equal(1, engine.ResultUnsubscriptionCount);
+            Assert.Equal(1, engine.CompletionUnsubscriptionCount);
+            Assert.Equal(1, engine.DisposeCount);
+            Assert.Equal(SpeechOperationState.Idle, states[^1]);
+        }
+
+        Assert.Equal(10, factory.CreatedEngines.Count);
+        Assert.Equal(10, results.Count);
+        Assert.Equal(30, states.Count);
+    }
+
+    [Fact]
+    public async Task DisposeWhileStoppingCancelsPendingStopAndIgnoresLateCallbacks()
+    {
+        var service = CreateService(out var factory);
+        var states = ObserveStates(service);
+        var results = ObserveResults(service);
+        await service.StartListeningAsync(EnglishCulture);
+        var engine = factory.CreatedEngines[0];
+        var stopTask = service.StopListeningAsync();
+
+        service.Dispose();
+        var stateCountAfterDispose = states.Count;
+        engine.EmitResult("late result");
+        engine.Complete(error: new InvalidOperationException("late failure"));
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => stopTask);
+        Assert.Empty(results);
+        Assert.Equal(stateCountAfterDispose, states.Count);
+        Assert.Equal(1, engine.ResultUnsubscriptionCount);
+        Assert.Equal(1, engine.CompletionUnsubscriptionCount);
+        Assert.Equal(1, engine.DisposeCount);
+    }
+
     private static SpeechToTextService CreateService(
         out FakeSpeechRecognitionEngineFactory factory)
     {
