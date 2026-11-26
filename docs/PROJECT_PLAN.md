@@ -119,11 +119,18 @@ remain manual submission gates rather than claimed passes.
 
 - [ ] Replace README student placeholders with verified details.
 - [ ] Capture at least two authentic screenshots from the final running build.
-- [ ] Update README checkboxes, limitations, setup, and actual validation results.
-- [ ] Validate all links and remove stale/TODO text except genuine limitations.
+- [x] Update README checkboxes, limitations, setup, and actual validation results.
+- [x] Validate all links and remove stale TODO text except the two genuine identity placeholders.
 - [ ] Perform clean-clone restore, Release build, tests, and run.
-- [ ] Confirm no secrets, personal transcript data, build output, or fake evidence.
-- [ ] Create a final submission checklist and version tag only after approval.
+- [x] Confirm no secrets, personal transcript data, build output, or fake evidence.
+- [x] Create the final submission checklist.
+- [ ] Create a version tag only after the final PR is merged and the owner approves it.
+
+Phase 06 preparation on 2026-11-26 completed the documentation, local-link, and
+repository-hygiene audits. The final submission remains intentionally incomplete:
+the owner has not supplied verified student details, this machine still has zero
+recognizers, no human has confirmed audible TTS, and no authentic final screenshots
+exist. These are submission gates, not software successes that can be simulated.
 
 ## Risk register
 

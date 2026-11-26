@@ -158,3 +158,10 @@ Final authentic screenshots must be captured from the running app and stored in
 
 Optional screenshots may document error handling. Do not capture personal content,
 machine usernames, unrelated windows, or simulated results presented as real.
+
+### Final screenshot status — 2026-11-26
+
+Neither planned screenshot is committed yet. The TTS capture requires an
+interactive Release session. The STT capture is blocked by the genuine installed
+recognizer count of zero and must not be replaced with typed or injected transcript
+content. See [the screenshot evidence record](screenshots/README.md).
