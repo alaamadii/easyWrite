@@ -339,3 +339,51 @@ Automated result:
 Manual matrix result:
 Known failures or blocked checks:
 ```
+
+## Phase 06 final-submission audit — 2026-11-26
+
+Environment: Windows 11 Pro 10.0.22631, .NET SDK 10.0.402, branch
+`docs/final-submission`, 125% display scaling (120 DPI). The capability probe and
+validation commands did not start audio playback or microphone capture.
+
+Final automated results:
+
+- `dotnet restore EasyWrite.slnx --locked-mode`: passed.
+- `dotnet format EasyWrite.slnx --verify-no-changes --no-restore`: passed.
+- `dotnet build EasyWrite.slnx --configuration Release --no-restore`: passed with
+  0 warnings and 0 errors.
+- `dotnet test EasyWrite.slnx --configuration Release --no-build`: 90 passed
+  (12 Core, 21 App presentation, and 57 Infrastructure).
+- Pushed commit `0b57412a4bdb913f27016259ecfc6a1cf359ab9e` was cloned into a
+  new temporary directory. Locked restore, formatting verification, Release build,
+  all 90 tests, and the three-second startup check passed there; the verified
+  temporary clone was then removed.
+- All repository-local Markdown links resolve.
+- Tracked-file hygiene checks found no `bin`, `obj`, `TestResults`, binary/image
+  artifacts, log/test-result files, machine-specific paths, private keys, or API-key
+  patterns.
+- The only remaining `TODO` values are the deliberately unfilled student name and
+  student number in the README; the owner has not supplied those values.
+
+Real Windows capability evidence:
+
+- Enabled voices: 3 (`Microsoft Zira Desktop`, `Microsoft Tolga`, and
+  `Microsoft Naayf`).
+- Installed recognizers: 0. A genuine recognized transcript, STT export flow, and
+  populated STT screenshot are therefore blocked on this machine.
+- Release executable startup: passed; the process remained healthy for a
+  three-second hidden observation, its exact process ID was stopped, and zero
+  `EasyWrite.App` processes remained. The hidden launch exposed no window handle,
+  so this is not evidence that speech, recognition, or visible layout worked.
+
+Manual and delivery evidence:
+
+- Audible TTS, pause/resume continuity, rate/volume perception, microphone input,
+  real recognition, and close during active hardware operations: not run or blocked.
+- Keyboard-only navigation, 100%/150% DPI, visible Save dialog feedback, and final
+  screenshot capture: not run in an interactive desktop session.
+- No screenshot is committed because no genuine final screenshot has been captured;
+  an unavailable-state or typed transcript is not substituted for STT evidence.
+- Final CI, PR review, and optional release tagging are recorded in
+  `SUBMISSION_CHECKLIST.md` and must not be marked complete before they actually
+  occur.

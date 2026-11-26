@@ -144,3 +144,36 @@ evidence of completion.
 | NFR-08 | Documented | README prerequisites and limitations continue to state Windows-only support. |
 | NFR-09 | Automated/code review | No audio is persisted or transmitted; transcript export remains explicitly user initiated; no secrets were added. |
 | NFR-10 | Automated/code review | Wrapped infrastructure errors retain inner exceptions, and caught UI failures are now written to Debug without logging transcript content. |
+
+## Phase 06 final-submission matrix — 2026-11-26
+
+This matrix is the final documentation audit. It does not replace the detailed
+phase evidence above or turn unavailable hardware checks into passes.
+
+| ID | Final status | Final evidence or remaining check |
+| --- | --- | --- |
+| FR-01 | Automated; audible portion not run | Asynchronous synthesis and completion pass; a human listener has not verified sound. |
+| FR-02 | Automated | Validation, settings, operation guards, and Speaking-state behavior pass. |
+| FR-03 | Automated; audible portion not run | Pause, resume, stop, cancellation, and disposal pass; audible continuity remains unverified. |
+| FR-04 | Automated plus prior UI evidence | Editor and transcript clearing, stored-result clearing, and focus behavior are implemented. |
+| FR-05 | Automated; real recognition blocked | Recognition lifecycle/result mapping pass with test adapters; the final machine has zero installed recognizers. |
+| FR-06 | Automated; real device/permission checks not run | Failure mappings preserve source exceptions and recovery guidance; machine devices and permissions were not altered. |
+| FR-07 | Automated plus prior UI evidence | Explicit textual states and valid control mappings pass without relying only on color. |
+| FR-08 | Release startup passed; final interactive review not run | The application launches, but final visible layout and interaction still require an interactive desktop review. |
+| FR-09 | Automated | Centralized state mapping prevents conflicting TTS, STT, and export operations. |
+| FR-10 | Automated; active hardware close not run/blocked | Deterministic disposal and late-callback protection pass; real listening close is blocked. |
+| FR-11 | Automated plus real discovery; audible selection not run | Three enabled voices were genuinely enumerated and selection forwarding passes. |
+| FR-12 | Automated; audible portion not run | Rate/volume validation, labels, and forwarding pass; perception remains unverified. |
+| FR-13 | Automated; live dialog path not run | Real temporary-file UTF-8 exports, replacement, cleanup, retry, and path feedback pass; interactive Save dialog evidence is pending. |
+| FR-14 | Automated; genuine recognized timestamps blocked | Shared local `[HH:mm:ss]` formatting and ordering pass; no real recognizer is installed. |
+| FR-15 | Deferred optional requirement | Confidence remains modeled but has no optional UI visualization and is not claimed. |
+| NFR-01 | Code review plus prior UI evidence; final interactive review pending | Primary controls and consistent English labels are present. |
+| NFR-02 | Automated/code review | Speech, recognition, export, and shutdown avoid blocking waits and synchronous long operations. |
+| NFR-03 | Partial manual/code review | Accessible names, tab order, and text state exist; final keyboard-only and 100%/150% DPI checks are not run. |
+| NFR-04 | Automated/code review | Microphone setup begins only after the explicit Start Listening action. |
+| NFR-05 | Automated; hardware repetition incomplete | Ten deterministic TTS/STT/export cycles and cleanup scenarios pass; real STT cycles are blocked. |
+| NFR-06 | Automated/build | App, Core, and Infrastructure boundaries compile cleanly; Core does not reference WinForms or `System.Speech`. |
+| NFR-07 | Automated/manual separation | 90 hardware-independent tests pass; unavailable manual checks remain separately identified. |
+| NFR-08 | Documented | Windows/.NET prerequisites and hardware limitations are stated in the README. |
+| NFR-09 | Automated/code review and hygiene audit | Speech stays local, export is user initiated, and no secrets or generated output are tracked. |
+| NFR-10 | Automated/code review | Friendly UI messages retain original exceptions for diagnostics without logging transcript content. |

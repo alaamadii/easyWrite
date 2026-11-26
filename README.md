@@ -4,11 +4,11 @@ EasyWrite is a Windows desktop application that converts written text into spoke
 audio and microphone speech into written text. It is Project 04 for the YMH219
 Object-Oriented Programming course.
 
-> **Current status:** Phase 05 deterministic reliability audit complete. EasyWrite
-> has 90 passing automated tests, including ten-cycle speech/export stress coverage,
-> shutdown disposal, late-callback, failure-recovery, and file-cleanup checks. Real
-> microphone, audible TTS, accessibility, and final screenshot sign-off remain
-> pending. See
+> **Current status:** Phase 06 submission preparation is in progress. The code and
+> 90-test deterministic suite are green, and final traceability, hygiene, and the
+> submission checklist are prepared. Submission is not yet complete: verified
+> student details, human audio checks, a compatible recognizer, final accessibility
+> checks, and authentic screenshots remain required. See
 > [Project Plan](docs/PROJECT_PLAN.md).
 
 ## Course information
@@ -101,7 +101,8 @@ system configuration.
 ```powershell
 git clone https://github.com/alaamadii/easyWrite.git
 cd easyWrite
-dotnet restore EasyWrite.slnx
+dotnet restore EasyWrite.slnx --locked-mode
+dotnet format EasyWrite.slnx --verify-no-changes --no-restore
 dotnet build EasyWrite.slnx --configuration Release --no-restore
 dotnet run --project src/EasyWrite.App/EasyWrite.App.csproj
 ```
@@ -114,7 +115,7 @@ unavailable, the application still opens and explains how to recover.
 ## Test
 
 ```powershell
-dotnet test EasyWrite.slnx --configuration Release
+dotnet test EasyWrite.slnx --configuration Release --no-build
 ```
 
 Manual speech tests require real Windows audio hardware and installed engines;
@@ -150,7 +151,7 @@ they are tracked separately in [Testing](docs/TESTING.md).
 - Phase 05 verifies ten deterministic TTS start/stop cycles, ten STT start/stop
   cycles, and ten sequential exports. These tests prove lifecycle coordination but
   do not replace audible or microphone hardware checks.
-- The current Phase 05 machine still reports three enabled voices and zero speech
+- The current final-submission machine still reports three enabled voices and zero speech
   recognizers. No audio playback or microphone capture was started during the audit.
 - The current Windows session is at 125% DPI. The final 100%/150% layout and full
   keyboard-only accessibility passes have not been run.
@@ -169,6 +170,8 @@ they are tracked separately in [Testing](docs/TESTING.md).
 - [Development guide](docs/DEVELOPMENT.md)
 - [Testing strategy](docs/TESTING.md)
 - [Architecture decisions](docs/DECISIONS.md)
+- [Final submission checklist](docs/SUBMISSION_CHECKLIST.md)
+- [Screenshot evidence status](docs/screenshots/README.md)
 
 ## Academic integrity and evidence
 
