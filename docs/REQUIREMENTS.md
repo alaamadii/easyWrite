@@ -177,3 +177,16 @@ phase evidence above or turn unavailable hardware checks into passes.
 | NFR-08 | Documented | Windows/.NET prerequisites and hardware limitations are stated in the README. |
 | NFR-09 | Automated/code review and hygiene audit | Speech stays local, export is user initiated, and no secrets or generated output are tracked. |
 | NFR-10 | Automated/code review | Friendly UI messages retain original exceptions for diagnostics without logging transcript content. |
+
+## Phase 07 closure status — 2026-11-26
+
+PR #12 and its successful Windows CI run are merged into `main` at
+`923372ab54a9b59269d97ce5b2e217ccba23d5c7`. Phase 07 repeated locked restore,
+format verification, the Release build, and all 90 automated tests successfully.
+Read-only Windows discovery again returned three enabled voices and zero installed
+recognizers without starting audio or microphone input.
+
+No requirement status in the Phase 06 matrix is promoted by those checks. Audible
+FR-01/FR-03/FR-11/FR-12 evidence remains not run; real FR-05/FR-10/FR-13/FR-14
+evidence remains blocked by the missing recognizer; and final NFR-01/NFR-03/NFR-05
+interactive evidence remains incomplete. FR-15 remains deferred.

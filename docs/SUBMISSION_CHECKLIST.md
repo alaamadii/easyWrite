@@ -21,6 +21,7 @@ passed.
 - [x] Release build has passed with 0 warnings and 0 errors.
 - [x] All 90 automated tests pass (12 Core, 21 App, 57 Infrastructure).
 - [x] Repeat restore/format/build/test from pushed commit `0b57412` in a clean clone.
+- [x] Repeat restore/format/build/test/startup from Phase 07 commit `ccf9014` in a clean clone.
 
 ## Real Windows and hardware evidence
 
@@ -61,9 +62,12 @@ passed.
 
 ## Delivery
 
-- [ ] Push `docs/final-submission` and open the final PR to `main`.
+- [x] Push `docs/final-submission` and open PR #12 to `main`.
 - [x] Confirm GitHub Actions passes on PR #12 (run `45812513776`).
-- [ ] Obtain owner approval and merge the final PR.
+- [x] Obtain owner approval and merge PR #12 (`923372a`).
+- [x] Push `docs/submission-closure` and open release-evidence PR #13.
+- [x] Confirm GitHub Actions passes on PR #13 (run `45815719014`).
+- [ ] Obtain owner approval and merge the final release-evidence PR.
 - [ ] Create and push `v1.0.0` only after the owner explicitly approves tagging.
 
 ## Current blockers
