@@ -2,7 +2,7 @@
 
 ## Delivery strategy
 
-Development is divided into seven reviewable phases. Mandatory requirements are
+Development is divided into eight reviewable phases. Mandatory requirements are
 completed before optional features and visual polish. Each phase must update docs,
 build, test, commit, push, and open a pull request; no PR is merged without explicit
 owner approval.
@@ -18,6 +18,7 @@ owner approval.
 | 04 | `feat/speech-settings` | Optional enhancements | Voice/rate/volume, timestamps, TXT export pass |
 | 05 | `test/reliability-validation` | Reliability, disposal, and deeper tests | Repeated cycles/close/failure cases are stable; validation suite passes |
 | 06 | `docs/final-submission` | Submission evidence and documentation | Authentic screenshots, final README, checklist, clean-clone validation |
+| 07 | `docs/submission-closure` | Manual evidence and release closure | Verified identity, hardware/accessibility evidence, authentic screenshots, final green PR |
 
 ## Phase 00 — Initialization (complete)
 
@@ -131,6 +132,24 @@ repository-hygiene audits. The final submission remains intentionally incomplete
 the owner has not supplied verified student details, this machine still has zero
 recognizers, no human has confirmed audible TTS, and no authentic final screenshots
 exist. These are submission gates, not software successes that can be simulated.
+
+## Phase 07 — Manual evidence and release closure
+
+- [x] Confirm PR #12 merged into `main` with successful CI.
+- [x] Repeat the locked restore, format, Release build, and 90-test baseline.
+- [x] Repeat real voice/recognizer discovery without starting audio or microphone input.
+- [ ] Replace README student placeholders with verified details.
+- [ ] Complete the human-observed TTS hardware matrix.
+- [ ] Complete genuine STT, timestamp, export, and physical lifecycle checks.
+- [ ] Complete keyboard-only and DPI 100%/150% verification.
+- [ ] Capture and inspect authentic TTS and STT screenshots.
+- [ ] Complete final clean-clone validation and open the release-evidence PR.
+- [ ] Create `v1.0.0` only after the final PR is merged and the owner separately approves tagging.
+
+The Phase 07 baseline on 2026-11-26 passed with 0 build warnings/errors and all
+90 tests. Read-only discovery again found Microsoft Zira Desktop, Microsoft Tolga,
+and Microsoft Naayf, but zero recognizers. Identity, human-observed audio,
+interactive accessibility/DPI, and authentic screenshot gates remain open.
 
 ## Risk register
 

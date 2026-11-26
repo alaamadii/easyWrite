@@ -387,3 +387,32 @@ Manual and delivery evidence:
 - Final CI, PR review, and optional release tagging are recorded in
   `SUBMISSION_CHECKLIST.md` and must not be marked complete before they actually
   occur.
+
+## Phase 07 closure baseline — 2026-11-26
+
+Branch: `docs/submission-closure`, based on merged PR #12 commit
+`923372ab54a9b59269d97ce5b2e217ccba23d5c7`.
+
+Automated baseline:
+
+- Locked restore: passed.
+- Formatting verification: passed with no changes.
+- Release build: passed with 0 warnings and 0 errors.
+- Tests: 90 passed (12 Core, 21 App presentation, and 57 Infrastructure).
+- Hidden Release startup: passed; the process remained healthy for three seconds,
+  its exact PID was stopped, and zero `EasyWrite.App` processes remained. No window
+  handle was exposed, so this is process evidence rather than a visible UI check.
+
+A temporary read-only test used the production discovery services, printed the
+results, and was removed immediately afterward. It did not request synthesis or
+recognition and did not start audio playback or microphone input.
+
+- Enabled voices: 3 (`Microsoft Zira Desktop`, `Microsoft Tolga`, and
+  `Microsoft Naayf`).
+- Installed recognizers: 0.
+
+Consequently, genuine STT, recognized timestamps, live transcript export, physical
+recognition lifecycle checks, and the required STT screenshot remain blocked on
+this machine. Audible TTS, keyboard/DPI review, and screenshots remain not run
+because no human-observed interactive session has been completed. Student identity
+also remains unverified and is not inferred from repository or account data.

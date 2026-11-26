@@ -4,11 +4,11 @@ EasyWrite is a Windows desktop application that converts written text into spoke
 audio and microphone speech into written text. It is Project 04 for the YMH219
 Object-Oriented Programming course.
 
-> **Current status:** Phase 06 submission preparation is in progress. The code and
-> 90-test deterministic suite are green, and final traceability, hygiene, and the
-> submission checklist are prepared. Submission is not yet complete: verified
-> student details, human audio checks, a compatible recognizer, final accessibility
-> checks, and authentic screenshots remain required. See
+> **Current status:** Phase 07 submission closure is in progress after PR #12 was
+> merged into `main`. The Release build and all 90 automated tests remain green,
+> and real discovery still finds three voices and zero recognizers. Submission is
+> not yet complete: verified student details, human audio checks, a compatible
+> recognizer, final accessibility checks, and authentic screenshots remain required. See
 > [Project Plan](docs/PROJECT_PLAN.md).
 
 ## Course information
@@ -151,7 +151,7 @@ they are tracked separately in [Testing](docs/TESTING.md).
 - Phase 05 verifies ten deterministic TTS start/stop cycles, ten STT start/stop
   cycles, and ten sequential exports. These tests prove lifecycle coordination but
   do not replace audible or microphone hardware checks.
-- The current final-submission machine still reports three enabled voices and zero speech
+- The Phase 07 closure machine still reports three enabled voices and zero speech
   recognizers. No audio playback or microphone capture was started during the audit.
 - The current Windows session is at 125% DPI. The final 100%/150% layout and full
   keyboard-only accessibility passes have not been run.

@@ -165,3 +165,7 @@ Neither planned screenshot is committed yet. The TTS capture requires an
 interactive Release session. The STT capture is blocked by the genuine installed
 recognizer count of zero and must not be replaced with typed or injected transcript
 content. See [the screenshot evidence record](screenshots/README.md).
+
+Phase 07 repeated the read-only capability check on 2026-11-26 and again found zero
+recognizers. The screenshot status is therefore unchanged; no image has been
+created or promoted as final evidence.

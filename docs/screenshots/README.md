@@ -4,6 +4,10 @@ This folder intentionally contains no application screenshots as of 2026-11-26.
 Final images must be captured from the completed, running Release application and
 must not be mockups, generated images, injected transcripts, or fabricated evidence.
 
+Phase 07 repeated read-only capability discovery on the same date: three voices
+were available and the recognizer count remained zero. No audio, microphone input,
+or screenshot capture was started, so the evidence status below is unchanged.
+
 Planned files:
 
 - `text-to-speech.png` — pending an interactive Release-session capture.

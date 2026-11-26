@@ -61,9 +61,12 @@ passed.
 
 ## Delivery
 
-- [ ] Push `docs/final-submission` and open the final PR to `main`.
+- [x] Push `docs/final-submission` and open PR #12 to `main`.
 - [x] Confirm GitHub Actions passes on PR #12 (run `45812513776`).
-- [ ] Obtain owner approval and merge the final PR.
+- [x] Obtain owner approval and merge PR #12 (`923372a`).
+- [ ] Push `docs/submission-closure` and open the final release-evidence PR.
+- [ ] Confirm GitHub Actions passes on the final release-evidence PR.
+- [ ] Obtain owner approval and merge the final release-evidence PR.
 - [ ] Create and push `v1.0.0` only after the owner explicitly approves tagging.
 
 ## Current blockers
