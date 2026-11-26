@@ -190,3 +190,33 @@ No requirement status in the Phase 06 matrix is promoted by those checks. Audibl
 FR-01/FR-03/FR-11/FR-12 evidence remains not run; real FR-05/FR-10/FR-13/FR-14
 evidence remains blocked by the missing recognizer; and final NFR-01/NFR-03/NFR-05
 interactive evidence remains incomplete. FR-15 remains deferred.
+
+## Phase 08 owner-assisted final evidence — 2026-11-26
+
+The owner supplied the verified name `ALAA MADI`, explicitly instructed that no
+student number be included, and reported the requested TTS and interactive
+accessibility/DPI checks successful. Direct evidence capture reached a genuine
+Paused TTS state in the real Release app and produced the inspected
+`screenshots/text-to-speech.png` image.
+
+| ID | Phase 08 status | Evidence |
+| --- | --- | --- |
+| FR-01 | Manual passed (owner reported) | Short and multi-sentence audible output were reported successful; the real app also reached Speaking/Paused during evidence capture. |
+| FR-03 | Manual passed (owner reported) | Pause, Resume, Stop, repeated cycles, and active-audio close behavior were reported successful. |
+| FR-05 | Automated implementation; real recognition blocked | A fresh production-service probe still returned zero compatible recognizers, so no microphone result is claimed. |
+| FR-06 | Automated plus observed recovery | A rapid repeated capture attempt exposed the friendly audio-output recovery message; a clean restart then reached Paused and produced the final image. |
+| FR-07 | Manual UI passed (owner reported) | Textual states, control availability, and visible status behavior were reported correct. |
+| FR-08 | Manual UI passed (owner reported) | The final layout and interaction review were reported correct; the authentic TTS capture corroborates the Paused presentation at 125% DPI. |
+| FR-10 | Partial manual | TTS active-state close behavior was reported successful; real Listening/Stopping close remains blocked by zero recognizers. |
+| FR-11 | Manual passed (owner reported) plus discovery | Voice selection behavior was reported correct; three enabled voices remain genuinely enumerated. |
+| FR-12 | Manual passed (owner reported) | Rate and volume behavior were reported correct. |
+| FR-13 | Automated; live recognized export blocked | File-service and dialog coordination remain covered, but a genuine recognized transcript cannot be produced for final live export evidence. |
+| FR-14 | Automated; genuine timestamp evidence blocked | Shared timestamp formatting passes automatically; no real recognizer is available for a genuine timestamped transcript. |
+| FR-15 | Deferred | Confidence visualization remains optional and is not claimed. |
+| NFR-01 | Manual passed (owner reported) | Final interface clarity and control visibility were reported correct. |
+| NFR-03 | Manual passed (owner reported) | Keyboard, focus, accessible descriptions, contrast, and 100%/125%/150% DPI behavior were reported correct. |
+| NFR-05 | Partial | Owner-reported TTS repetition passes and deterministic automated cycles pass; real STT repetition remains blocked. |
+| NFR-07 | Automated/manual separation | All 90 tests pass, and owner-reported versus directly observed evidence is explicitly identified. |
+| NFR-08 | Documented | Windows-only and installed-engine limitations remain explicit. |
+| NFR-09 | Audited | The final screenshot contains non-personal text and no transcript, path, notification, or unrelated window. |
+| NFR-10 | Observed plus automated | The transient audio failure produced actionable feedback and recovery succeeded after restart. |

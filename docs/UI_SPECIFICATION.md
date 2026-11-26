@@ -161,11 +161,11 @@ machine usernames, unrelated windows, or simulated results presented as real.
 
 ### Final screenshot status — 2026-11-26
 
-Neither planned screenshot is committed yet. The TTS capture requires an
-interactive Release session. The STT capture is blocked by the genuine installed
-recognizer count of zero and must not be replaced with typed or injected transcript
-content. See [the screenshot evidence record](screenshots/README.md).
+`screenshots/text-to-speech.png` is an authentic 1182×799 capture from the real
+Release application in a genuine Paused state. It was inspected for legibility,
+accurate controls/status, cropping, and privacy.
 
-Phase 07 repeated the read-only capability check on 2026-11-26 and again found zero
-recognizers. The screenshot status is therefore unchanged; no image has been
-created or promoted as final evidence.
+The STT capture remains blocked: the Phase 08 production capability probe still
+found zero compatible recognizers after Windows speech settings were reviewed. No
+typed, injected, unavailable-state, mock, or generated transcript is substituted.
+See [the screenshot evidence record](screenshots/README.md).

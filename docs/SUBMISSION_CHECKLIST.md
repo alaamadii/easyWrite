@@ -8,8 +8,8 @@ passed.
 
 ## Identity and course information
 
-- [ ] Replace the README student-name placeholder with the owner's verified full name.
-- [ ] Replace the README student-number placeholder with the owner's verified number.
+- [x] Replace the README student-name placeholder with the verified name `ALAA MADI`.
+- [x] Omit the student-number field by the owner's explicit instruction.
 - [x] Course, project title, deadline, and repository URL are documented.
 
 ## Requirements and automated validation
@@ -29,9 +29,9 @@ passed.
 - [x] Three enabled voices are genuinely enumerated.
 - [x] Zero installed recognizers are genuinely recorded.
 - [x] Hidden Release startup remained healthy and exact-PID cleanup left no process.
-- [ ] Have a human confirm audible short and multi-sentence TTS.
-- [ ] Have a human confirm voice, rate, volume, Pause, Resume, and Stop behavior.
-- [ ] Complete ten physical TTS start/stop cycles and active-audio close checks.
+- [x] Have the owner confirm audible short and multi-sentence TTS.
+- [x] Have the owner confirm voice, rate, volume, Pause, Resume, and Stop behavior.
+- [x] Record the owner's successful ten-cycle and active-audio close report.
 - [ ] Install/enable a compatible recognizer with owner approval or use another test PC.
 - [ ] Complete real microphone recognition, timestamps, repeated cycles, and close checks.
 - [ ] Complete genuine Save-dialog and live transcript export checks.
@@ -39,15 +39,15 @@ passed.
 ## Accessibility and layout
 
 - [x] Earlier 125% DPI interface evidence is recorded honestly.
-- [ ] Complete the final keyboard-only navigation and access-key pass.
-- [ ] Confirm visible focus, accessible descriptions, and contrast interactively.
-- [ ] Verify final layout at 100% and 150% DPI without unauthorized setting changes.
+- [x] Record the owner's final keyboard-only navigation and access-key pass.
+- [x] Record the owner's visible-focus, accessible-description, and contrast pass.
+- [x] Record the owner's successful 100%/125%/150% DPI review.
 
 ## Authentic screenshots
 
-- [ ] Add `docs/screenshots/text-to-speech.png` from the real Release application.
+- [x] Add `docs/screenshots/text-to-speech.png` from the real Release application.
 - [ ] Add `docs/screenshots/speech-to-text.png` with genuinely recognized timestamped text.
-- [ ] Inspect screenshots for cropping, legibility, accurate state, and privacy.
+- [x] Inspect the available TTS screenshot for cropping, legibility, accurate state, and privacy.
 - [x] No mock, generated, injected-transcript, or fabricated screenshot is committed.
 
 ## Documentation and repository hygiene
@@ -58,7 +58,7 @@ passed.
 - [x] No tracked build output, test results, logs, temporary probes, or transcript TXT files exist.
 - [x] No detected secret pattern, private key, API key, or machine-specific absolute path is tracked.
 - [x] No personal speech or transcript content is committed.
-- [ ] Remove the two genuine README identity TODOs after the owner supplies values.
+- [x] Remove both README identity placeholders; omit the student number as instructed.
 
 ## Delivery
 
@@ -67,14 +67,17 @@ passed.
 - [x] Obtain owner approval and merge PR #12 (`923372a`).
 - [x] Push `docs/submission-closure` and open release-evidence PR #13.
 - [x] Confirm GitHub Actions passes on PR #13 (run `45815719014`).
-- [ ] Obtain owner approval and merge the final release-evidence PR.
+- [x] Obtain owner approval and merge PR #13 (`2c8c8d1`).
+- [ ] Push `docs/final-manual-evidence` and open the final evidence PR.
+- [ ] Confirm GitHub Actions passes on the final evidence PR.
+- [ ] Obtain owner approval and merge the final evidence PR.
 - [ ] Create and push `v1.0.0` only after the owner explicitly approves tagging.
 
 ## Current blockers
 
-1. The owner's verified full name and student number have not been supplied.
-2. This Windows installation reports zero speech recognizers, so genuine STT,
+1. This Windows installation reports zero `System.Speech` recognizers, so genuine STT,
    live transcript export, and the required STT screenshot cannot be produced.
-3. Audible TTS and physical-device checks require a human observer.
-4. Keyboard-only, DPI 100%/150%, and authentic screenshot checks still require an
-   interactive desktop session and, where applicable, owner-approved system changes.
+2. Windows speech settings were reviewed, but production discovery still returns
+   zero compatible recognizers. Voice Access or online speech alone is insufficient.
+3. The final tag remains prohibited until the final PR is merged and the owner gives
+   separate explicit tag approval.

@@ -4,11 +4,12 @@ EasyWrite is a Windows desktop application that converts written text into spoke
 audio and microphone speech into written text. It is Project 04 for the YMH219
 Object-Oriented Programming course.
 
-> **Current status:** Phase 07 submission closure is in progress after PR #12 was
-> merged into `main`. The Release build and all 90 automated tests remain green,
-> and real discovery still finds three voices and zero recognizers. Submission is
-> not yet complete: verified student details, human audio checks, a compatible
-> recognizer, final accessibility checks, and authentic screenshots remain required. See
+> **Current status:** Phase 08 final evidence is prepared for review. The Release
+> build has 0 warnings/errors, all 90 automated tests pass, the owner reported the
+> TTS and accessibility/DPI checks successful, and an authentic paused-TTS screenshot
+> is included. Submission is not fully complete because production discovery still
+> finds zero compatible recognizers, blocking genuine STT/export evidence and the
+> required STT screenshot. See
 > [Project Plan](docs/PROJECT_PLAN.md).
 
 ## Course information
@@ -17,8 +18,7 @@ Object-Oriented Programming course.
 | --- | --- |
 | Course | YMH219 — Object-Oriented Programming |
 | Project | 04 — Speech-to-Text and Text-to-Speech Application |
-| Student | **TODO: add student full name** |
-| Student number | **TODO: add student number** |
+| Student | **ALAA MADI** |
 | Deadline | November 30, 2026 at 23:59 (Asia/Riyadh) |
 | Repository | <https://github.com/alaamadii/easyWrite> |
 
@@ -33,8 +33,9 @@ focused experiences:
   receive timestamped recognition results, stop safely, clear, or export to TXT.
 
 Mandatory functionality, voice settings, timestamps, and TXT export are
-implemented. Remaining work is physical-hardware validation, final accessibility
-checks, authentic screenshots, and submission preparation.
+implemented. TTS and accessibility/DPI behavior have owner-reported manual evidence;
+genuine STT hardware evidence remains blocked by the absence of a compatible local
+recognizer.
 
 ## Technology
 
@@ -133,7 +134,16 @@ they are tracked separately in [Testing](docs/TESTING.md).
 - [x] Graceful file-export errors
 - [x] Graceful microphone and recognition-engine errors
 - [x] Graceful TTS voice, state, initialization, and audio errors
-- [ ] Final accessibility pass and authentic screenshots
+- [x] Final owner-reported accessibility and DPI pass
+- [x] Authentic TTS screenshot
+- [ ] Authentic STT screenshot (blocked by zero compatible recognizers)
+
+## Authentic screenshot evidence
+
+![EasyWrite paused text-to-speech evidence](docs/screenshots/text-to-speech.png)
+
+The image above was captured from the real Release application in a genuine Paused
+state. The missing STT image is not replaced with simulated transcript content.
 
 ## Known limitations
 
@@ -142,8 +152,9 @@ they are tracked separately in [Testing](docs/TESTING.md).
 - `System.Speech` is a compatibility-focused Windows library and is not a cloud AI
   transcription service.
 - Automated CI can validate code but cannot prove microphone or speaker behavior.
-- Audible TTS output still needs a human hardware check; the assistant-run Phase 02
-  validation confirmed startup and real voice discovery but did not claim hearing audio.
+- The owner reported the final audible TTS matrix successful. During evidence
+  capture, a genuine paused state was observed and captured; one later rapid repeat
+  exposed the documented audio-recovery message, and a clean restart succeeded.
 - The Phase 03 development machine reported zero installed Windows recognizers, so
   real microphone recognition is blocked until a compatible speech language is installed.
 - Timestamp formatting and UTF-8 file export are fully automated-tested, but the
@@ -151,13 +162,13 @@ they are tracked separately in [Testing](docs/TESTING.md).
 - Phase 05 verifies ten deterministic TTS start/stop cycles, ten STT start/stop
   cycles, and ten sequential exports. These tests prove lifecycle coordination but
   do not replace audible or microphone hardware checks.
-- The Phase 07 closure machine still reports three enabled voices and zero speech
-  recognizers. No audio playback or microphone capture was started during the audit.
-- The current Windows session is at 125% DPI. The final 100%/150% layout and full
-  keyboard-only accessibility passes have not been run.
-- Final submission screenshots are not included yet because hardware and
-  interactive validation are not complete. Phase 01 UI evidence must not be
-  presented as final behavior.
+- The Phase 08 production probe still reports three enabled voices and zero
+  `System.Speech` recognizers even after Windows speech settings were reviewed.
+- The owner reported the keyboard-only, focus, accessibility, contrast, and
+  100%/125%/150% DPI checks successful; these remain owner-attested manual evidence.
+- `docs/screenshots/text-to-speech.png` is an authentic capture of the real Release
+  app in a Paused state. No STT screenshot is included because a genuine transcript
+  cannot be produced on this machine.
 
 ## Documentation
 

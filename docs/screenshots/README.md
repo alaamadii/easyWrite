@@ -1,18 +1,20 @@
 # Screenshots
 
-This folder intentionally contains no application screenshots as of 2026-11-26.
-Final images must be captured from the completed, running Release application and
-must not be mockups, generated images, injected transcripts, or fabricated evidence.
+This folder contains authentic application evidence captured from the real Release
+build on 2026-11-26. Images must not be mockups, generated images, injected
+transcripts, or fabricated evidence.
 
-Phase 07 repeated read-only capability discovery on the same date: three voices
-were available and the recognizer count remained zero. No audio, microphone input,
-or screenshot capture was started, so the evidence status below is unchanged.
+Evidence files:
 
-Planned files:
-
-- `text-to-speech.png` — pending an interactive Release-session capture.
+- `text-to-speech.png` — passed visual inspection. The 1182×799 window-only capture
+  shows non-personal text, Microsoft Zira Desktop, rate 0, volume 100, enabled
+  Resume/Stop controls, inline paused feedback, and the global Paused status. The
+  application was genuinely paused during capture and playback was stopped afterward.
 - `speech-to-text.png` — blocked because the current machine has zero installed
   recognizers and cannot produce a genuine timestamped transcript.
+
+The TTS image SHA-256 is
+`CAEDD651F6193CB77A58F0656DE63A590BA489A3CF5DCA2A38915E75A9BE259D`.
 
 An unavailable-recognizer screen is valid error-state evidence but is not a
 replacement for the required genuine speech-to-text screenshot. Install/enable a
