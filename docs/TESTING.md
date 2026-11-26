@@ -354,6 +354,10 @@ Final automated results:
   0 warnings and 0 errors.
 - `dotnet test EasyWrite.slnx --configuration Release --no-build`: 90 passed
   (12 Core, 21 App presentation, and 57 Infrastructure).
+- Pushed commit `0b57412a4bdb913f27016259ecfc6a1cf359ab9e` was cloned into a
+  new temporary directory. Locked restore, formatting verification, Release build,
+  all 90 tests, and the three-second startup check passed there; the verified
+  temporary clone was then removed.
 - All repository-local Markdown links resolve.
 - Tracked-file hygiene checks found no `bin`, `obj`, `TestResults`, binary/image
   artifacts, log/test-result files, machine-specific paths, private keys, or API-key
@@ -380,6 +384,6 @@ Manual and delivery evidence:
   screenshot capture: not run in an interactive desktop session.
 - No screenshot is committed because no genuine final screenshot has been captured;
   an unavailable-state or typed transcript is not substituted for STT evidence.
-- Clean-clone validation, final CI, PR review, and optional release tagging are
-  recorded in `SUBMISSION_CHECKLIST.md` and must not be marked complete before they
-  actually occur.
+- Final CI, PR review, and optional release tagging are recorded in
+  `SUBMISSION_CHECKLIST.md` and must not be marked complete before they actually
+  occur.

@@ -121,7 +121,7 @@ remain manual submission gates rather than claimed passes.
 - [ ] Capture at least two authentic screenshots from the final running build.
 - [x] Update README checkboxes, limitations, setup, and actual validation results.
 - [x] Validate all links and remove stale TODO text except the two genuine identity placeholders.
-- [ ] Perform clean-clone restore, Release build, tests, and run.
+- [x] Perform clean-clone restore, Release build, tests, and run.
 - [x] Confirm no secrets, personal transcript data, build output, or fake evidence.
 - [x] Create the final submission checklist.
 - [ ] Create a version tag only after the final PR is merged and the owner approves it.

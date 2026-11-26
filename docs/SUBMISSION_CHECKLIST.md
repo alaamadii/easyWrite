@@ -20,7 +20,7 @@ passed.
 - [x] Formatting verification has passed with no changes.
 - [x] Release build has passed with 0 warnings and 0 errors.
 - [x] All 90 automated tests pass (12 Core, 21 App, 57 Infrastructure).
-- [ ] Repeat restore/format/build/test from the final pushed clean clone.
+- [x] Repeat restore/format/build/test from pushed commit `0b57412` in a clean clone.
 
 ## Real Windows and hardware evidence
 
